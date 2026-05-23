@@ -37,14 +37,13 @@
         <span id="timerDisplay">45:00</span>
       </div>
     </div>
+    <!-- Global Progress bar attached to navbar -->
+    <div class="quiz-progress-bar" style="position: absolute; bottom: 0; left: 0; width: 100%; margin: 0; height: 4px; border-radius: 0; background: var(--bg3);">
+      <div class="quiz-progress-fill" id="progressFill" style="width:0%; border-radius: 0;"></div>
+    </div>
   </nav>
 
   <div class="container" style="padding-top:24px;">
-
-    <!-- Progress bar -->
-    <div class="quiz-progress-bar">
-      <div class="quiz-progress-fill" id="progressFill" style="width:0%"></div>
-    </div>
 
     <!-- Quiz header -->
     <div class="quiz-header fade-up">
@@ -139,7 +138,6 @@
       const remaining = total - answered;
       document.getElementById('progressFill').style.width = `${(answered / total) * 100}%`;
       document.getElementById('progressText').textContent  = `Answered: ${answered} / ${total}`;
-      document.getElementById('remaining').textContent     = remaining;
       const ready = remaining === 0;
       document.getElementById('submitBtn').disabled  = !ready;
       const info = document.getElementById('submitInfo');
