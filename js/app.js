@@ -398,3 +398,30 @@ function getCachedSubmission() {
     return raw ? JSON.parse(raw) : null;
   } catch { return null; }
 }
+
+// ──────────────────────────────────────────────
+//  SCROLL REVEAL INITIALIZATION
+// ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Add body class indicating JavaScript is active
+  document.body.classList.add('js-enabled');
+
+  // Trigger IntersectionObserver for reveal animations on older browsers
+  if (!CSS.supports('(animation-timeline: view()) and (animation-range: entry)')) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      rootMargin: '0px 0px -50px 0px',
+      threshold: 0.08
+    });
+
+    document.querySelectorAll('.scroll-reveal').forEach(el => {
+      observer.observe(el);
+    });
+  }
+});

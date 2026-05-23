@@ -43,7 +43,7 @@
     </div>
   </nav>
 
-  <div class="container" style="padding-top:24px;">
+  <div class="container container--wide" style="padding-top:24px;">
 
     <!-- Quiz header -->
     <div class="quiz-header fade-up">
@@ -101,9 +101,8 @@
 
     QUESTIONS.forEach((q, idx) => {
       const card = document.createElement('div');
-      card.className = 'question-card fade-up';
+      card.className = 'question-card scroll-reveal';
       card.id = `q-card-${idx}`;
-      card.style.animationDelay = `${idx * 0.025}s`;
 
       const optionsHTML = Object.entries(q.options).map(([key, text]) => `
         <li>

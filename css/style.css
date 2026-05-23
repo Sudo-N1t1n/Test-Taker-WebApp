@@ -84,7 +84,7 @@ p  { color: var(--text-muted); line-height: 1.7; }
 
 /* ── Layout ── */
 .container      { max-width: 820px;  margin: 0 auto; padding: 24px 20px; }
-.container--wide{ max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+.container--wide{ max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
 
 /* ── Cards ── */
 .card {
@@ -355,6 +355,19 @@ p  { color: var(--text-muted); line-height: 1.7; }
   overflow-wrap: break-word;
 }
 
+/* ── Questions container grid ── */
+#questionsContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+@media (min-width: 768px) {
+  #questionsContainer {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+}
+
 /* ── Quiz page ── */
 .quiz-header {
   display: flex;
@@ -496,8 +509,9 @@ p  { color: var(--text-muted); line-height: 1.7; }
 .option-label:active  { transform: scale(0.99); background: rgba(99,102,241,0.12); }
 .option-label input[type="radio"] { display: none; }
 .option-label.selected {
-  border-color: var(--indigo);
-  background: rgba(99,102,241,0.13);
+  border-color: var(--cyan);
+  background: rgba(99,102,241,0.16);
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.15);
 }
 .option-key {
   flex-shrink: 0;
@@ -512,9 +526,10 @@ p  { color: var(--text-muted); line-height: 1.7; }
   margin-top: 2px;
 }
 .option-label.selected .option-key {
-  background: var(--indigo);
-  border-color: var(--indigo);
+  background: linear-gradient(135deg, var(--indigo-lt), var(--indigo-dk));
+  border-color: var(--indigo-lt);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
 }
 
 /* ── Submit bar ── */
@@ -1033,6 +1048,16 @@ tr:hover td { background: rgba(99,102,241,0.05); }
 }
 
 /* ════════════════════════════════════════
+   RESPONSIVE — Phones & Small Viewports (≤ 480px)
+   ════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .container, .container--wide { padding: 12px 10px; }
+  .question-card { padding: 14px 12px; margin-bottom: 12px; border-radius: 10px; }
+  .option-label { padding: 10px 10px; gap: 8px; font-size: 0.85rem; }
+  .option-key { width: 24px; height: 24px; font-size: 0.68rem; margin-top: 1px; }
+}
+
+/* ════════════════════════════════════════
    SCROLLBAR — Desktop only (hides on mobile)
    ════════════════════════════════════════ */
 @media (min-width: 641px) {
@@ -1044,6 +1069,41 @@ tr:hover td { background: rgba(99,102,241,0.05); }
     border: 2px solid var(--bg);
   }
   ::-webkit-scrollbar-thumb:hover { background: var(--indigo-lt); }
+}
+
+/* ── Scroll Reveal System ── */
+body.js-enabled .scroll-reveal {
+  opacity: 0;
+  transform: translateY(24px) scale(0.98);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+body.js-enabled .scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    @keyframes reveal-item {
+      from {
+        opacity: 0;
+        transform: translateY(28px) scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    body.js-enabled .scroll-reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+      animation: reveal-item auto linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 35%;
+    }
+  }
 }
 
 /* ── Custom Text Selection ── */
