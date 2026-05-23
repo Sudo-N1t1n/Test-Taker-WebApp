@@ -299,9 +299,14 @@
           <td class="col-time">${mins}m ${secs}s</td>
           <td style="font-size:0.8rem;color:var(--text-muted);">${formatDate(s.submittedAt)}</td>
           <td>
-            <button class="btn btn-secondary" style="padding:6px 12px;font-size:0.78rem;" onclick="openDetail('${escHtml(s.id)}')">
-              View
-            </button>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-secondary" style="padding:6px 12px;font-size:0.78rem;" onclick="openDetail('${escHtml(s.id)}')">
+                View
+              </button>
+              <a href="result.html?id=${escHtml(s.id)}" target="_blank" class="btn btn-secondary" style="padding:6px 12px;font-size:0.78rem;text-decoration:none;">
+                Share
+              </a>
+            </div>
           </td>`;
         tbody.appendChild(tr);
       });

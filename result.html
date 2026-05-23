@@ -99,18 +99,44 @@
   <script src="js/firebase-config.js"></script>
   <script src="js/app.js"></script>
   <script>
-    const submission = getCachedSubmission();
+    const urlParams = new URLSearchParams(window.location.search);
+    const resultId = urlParams.get('id');
 
-    if (!submission) {
+    if (resultId) {
+      window.db.collection(CONFIG.firestoreCollection).doc(resultId).get()
+        .then(doc => {
+          if (doc.exists) {
+            renderResult(doc.data());
+          } else {
+            showNotFound();
+          }
+        })
+        .catch(err => {
+          console.error("Firestore read error:", err);
+          showNotFound();
+        });
+    } else {
+      const submission = getCachedSubmission();
+      if (submission) {
+        window.history.replaceState(null, '', `?id=${submission.id}`);
+        renderResult(submission);
+      } else {
+        showNotFound();
+      }
+    }
+
+    function showNotFound() {
       document.getElementById('loadingState').innerHTML = `
         <div style="max-width:360px;margin:0 auto;">
           <div style="font-size:3rem;margin-bottom:12px;">🔍</div>
           <h2>No Result Found</h2>
-          <p style="margin:8px 0 24px;">You haven't taken the test yet, or your session expired.</p>
+          <p style="margin:8px 0 24px;">We couldn't find this result or your session expired.</p>
           <a href="index.html" class="btn btn-primary">Start the Test →</a>
         </div>
       `;
-    } else {
+    }
+
+    function renderResult(submission) {
       document.getElementById('loadingState').style.display = 'none';
       document.getElementById('resultContent').style.display = 'block';
 
