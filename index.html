@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Physics For Fun — Practical Skills Pre-Test</title>
+  <meta name="description"
+    content="A diagnostic pre-test for Physics Practical Skills — Class 11 & 12. Designed by Mr. Dinesh Nagar, UMS Physics Teacher at CM RISE Sabakheda." />
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚗️</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <span class="navbar-brand">⚗️ <span class="brand-text">Physics For Fun</span></span>
+    <div class="navbar-right">
+      <a href="admin.html" class="btn btn-secondary" style="padding:8px 14px;font-size:0.82rem;">🔒 Admin</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero fade-up">
+    <div class="hero-badge">🎓 Teacher Training Programme </div>
+    <h1>Physics Practical Skills<br><span class="gradient-text">Pre-Test Assessment</span></h1>
+    <p>A diagnostic quiz covering Class 11 &amp; 12 physics practical techniques, instruments, and experimental methods.
+    </p>
+
+    <!-- Author credit strip -->
+    <div class="author-strip">
+      ✏️ Designed by <strong>Mr. Dinesh Nagar</strong> &bull; UMS Physics Teacher, CM RISE Sabakheda
+    </div>
+    <div style="margin-top: -12px; margin-bottom: 24px;">
+      <a href="about.html" class="btn btn-secondary" style="padding: 8px 18px; font-size: 0.82rem; border-radius: 50px;">
+        ℹ️ About Creator &amp; Platform
+      </a>
+    </div>
+
+    <div class="info-pills">
+      <div class="pill">📋 <span>25 Questions</span></div>
+      <div class="pill">⏱️ <span>45 Minutes</span></div>
+      <div class="pill">🎯 <span>MCQ Format</span></div>
+      <div class="pill">✅ <span>Pass: 10 / 25</span></div>
+    </div>
+  </section>
+
+  <!-- Registration form -->
+  <div class="container">
+    <div class="card fade-up fade-up-2">
+      <h2 style="margin-bottom:6px;">Enter Your Details</h2>
+      <p style="margin-bottom:28px;">Fill in your name and email to begin the test.</p>
+
+      <form id="startForm" novalidate>
+        <div class="form-group">
+          <label for="nameInput">Full Name *</label>
+          <input type="text" id="nameInput" placeholder="e.g. Ravi Kumar" required autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="emailInput">Email Address *</label>
+          <input type="email" id="emailInput" placeholder="e.g. ravi@school.edu" required autocomplete="email" />
+        </div>
+        <div id="formError" style="color:var(--red);font-size:0.88rem;margin-bottom:16px;display:none;"></div>
+        <button type="submit" class="btn btn-primary" id="startBtn" style="width:100%;font-size:1rem;padding:15px;">
+          Start Test →
+        </button>
+      </form>
+    </div>
+
+    <!-- Instructions -->
+    <div class="card fade-up fade-up-3" style="margin-top:20px;">
+      <h3 style="margin-bottom:16px;">📌 Instructions</h3>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;">
+        <li style="display:flex;gap:12px;align-items:flex-start;color:var(--text-muted);font-size:0.92rem;">
+          <span style="color:var(--indigo-lt);flex-shrink:0;font-weight:700;">1.</span>
+          The test contains <strong style="color:var(--text);">25 multiple-choice questions</strong>. Each question has
+          exactly one correct answer.
+        </li>
+        <li style="display:flex;gap:12px;align-items:flex-start;color:var(--text-muted);font-size:0.92rem;">
+          <span style="color:var(--indigo-lt);flex-shrink:0;font-weight:700;">2.</span>
+          You have <strong style="color:var(--text);">45 minutes</strong> to complete the test. The timer starts when
+          you click "Start Test".
+        </li>
+        <li style="display:flex;gap:12px;align-items:flex-start;color:var(--text-muted);font-size:0.92rem;">
+          <span style="color:var(--indigo-lt);flex-shrink:0;font-weight:700;">3.</span>
+          All questions must be answered before you can submit.
+        </li>
+        <li style="display:flex;gap:12px;align-items:flex-start;color:var(--text-muted);font-size:0.92rem;">
+          <span style="color:var(--indigo-lt);flex-shrink:0;font-weight:700;">4.</span>
+          Your score and correct answers will be shown immediately after submission.
+        </li>
+        <li style="display:flex;gap:12px;align-items:flex-start;color:var(--text-muted);font-size:0.92rem;">
+          <span style="color:var(--indigo-lt);flex-shrink:0;font-weight:700;">5.</span>
+          <strong style="color:var(--amber);">Do not refresh the page</strong> during the test — your progress will be
+          lost.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div>⚗️ <strong>Physics For Fun</strong> &bull; Physics Practical Skills Pre-Test</div>
+    <div style="margin-top:4px;">
+      Designed &amp; created by
+      <a href="about.html"><strong>Mr. Dinesh Nagar</strong></a> &bull;
+      UMS Physics Teacher, CM RISE Sabakheda
+    </div>
+    <div style="margin-top:4px;">
+      📞 <a href="tel:9993355323">9993355323</a> &nbsp;|&nbsp;
+      ✉️ <a href="mailto:Dineshnagar76@gmail.com">Dineshnagar76@gmail.com</a>
+    </div>
+    <div style="margin-top:4px;font-size:0.75rem;">Built with ❤️ using HTML · CSS · JavaScript · Firebase
+    </div>
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const form = document.getElementById('startForm');
+    const errEl = document.getElementById('formError');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('nameInput').value.trim();
+      const email = document.getElementById('emailInput').value.trim();
+
+      if (!name) {
+        errEl.textContent = 'Please enter your full name.';
+        errEl.style.display = 'block';
+        document.getElementById('nameInput').focus();
+        return;
+      }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errEl.textContent = 'Please enter a valid email address.';
+        errEl.style.display = 'block';
+        document.getElementById('emailInput').focus();
+        return;
+      }
+
+      errEl.style.display = 'none';
+      savePendingUser(name, email);
+      window.location.href = 'quiz.html';
+    });
+  </script>
+</body>
+
+</html>
