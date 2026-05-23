@@ -29,7 +29,12 @@
   --transition: 0.22s ease;
 }
 
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  /* Momentum-based smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+}
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -39,6 +44,9 @@ body {
   line-height: 1.6;
   position: relative;
   overflow-x: hidden;
+  /* Smooth scrolling on mobile */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 /* Subtle mesh gradient background with organic animation */
@@ -269,15 +277,20 @@ p  { color: var(--text-muted); line-height: 1.7; }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  flex-wrap: wrap;           /* Wraps on narrow screens */
+  gap: 6px 10px;
   background: rgba(99,102,241,0.07);
   border: 1.5px solid rgba(99,102,241,0.2);
-  border-radius: 50px;
-  padding: 8px 20px;
+  border-radius: 16px;
+  padding: 10px 18px;
   margin: 0 auto 28px;
-  max-width: fit-content;
+  max-width: 100%;           /* Never overflows viewport */
+  width: fit-content;
   font-size: 0.83rem;
   color: var(--text-muted);
+  text-align: center;
+  line-height: 1.6;
+  word-break: break-word;
   box-shadow: 0 4px 20px rgba(99, 102, 241, 0.05);
   transition: all var(--transition);
 }
@@ -420,6 +433,8 @@ p  { color: var(--text-muted); line-height: 1.7; }
   color: var(--text);
   margin-bottom: 18px;
   line-height: 1.75;
+  word-break: break-word;    /* Prevents long lines from overflowing */
+  overflow-wrap: break-word;
 }
 .options-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
 .option-label {
@@ -433,13 +448,20 @@ p  { color: var(--text-muted); line-height: 1.7; }
   cursor: pointer;
   transition: border-color var(--transition), background-color var(--transition), transform var(--transition), box-shadow var(--transition);
   font-size: 0.93rem;
-  line-height: 1.55;
-  min-height: 44px;  /* Touch friendly */
+  line-height: 1.6;
+  min-height: 48px;  /* Generous touch target */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  -webkit-user-select: none;
+  user-select: none;
 }
-.option-label:hover   { border-color: var(--indigo-lt); background: rgba(99,102,241,0.08); transform: translateX(4px); }
-.option-label:active  { transform: translateX(2px) scale(0.99); }
+/* Disable translateX hover on touch — avoids horizontal scroll */
+@media (hover: hover) {
+  .option-label:hover { border-color: var(--indigo-lt); background: rgba(99,102,241,0.08); transform: translateX(4px); }
+}
+.option-label:active  { transform: scale(0.99); background: rgba(99,102,241,0.12); }
 .option-label input[type="radio"] { display: none; }
 .option-label.selected {
   border-color: var(--indigo);
@@ -455,7 +477,7 @@ p  { color: var(--text-muted); line-height: 1.7; }
   font-size: 0.74rem; font-weight: 700;
   color: var(--text-muted);
   transition: all var(--transition);
-  margin-top: 1px;
+  margin-top: 2px;
 }
 .option-label.selected .option-key {
   background: var(--indigo);
@@ -818,93 +840,178 @@ tr:hover td { background: rgba(99,102,241,0.05); }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-value { font-size: 1.6rem; }
   .tech-grid { grid-template-columns: repeat(2, 1fr); }
+  /* Allow table to horizontally scroll without breaking outer layout */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
 
 /* ════════════════════════════════════════
    RESPONSIVE — Phones (≤ 640px)
    ════════════════════════════════════════ */
 @media (max-width: 640px) {
-  .navbar { padding: 0 14px; height: 54px; }
-  .navbar-brand { font-size: 0.95rem; }
+
+  /* ── Navbar ── */
+  .navbar { padding: 0 12px; height: 52px; overflow: visible; }
+  .navbar-brand { font-size: 0.92rem; }
   .nav-link { font-size: 0.78rem; padding: 5px 8px; }
   .navbar-right { gap: 4px; }
   .btn { padding: 10px 16px; font-size: 0.88rem; }
 
-  .hero { padding: 36px 16px 24px; }
-  .hero > p { font-size: 0.92rem; }
-  .hero-badge { font-size: 0.75rem; padding: 4px 14px; }
+  /* ── Hero ── */
+  .hero { padding: 32px 16px 20px; }
+  .hero > p { font-size: 0.9rem; padding: 0 4px; }
+  .hero-badge { font-size: 0.74rem; padding: 4px 12px; }
 
+  /* ── Info pills ── */
   .info-pills { gap: 6px; }
   .pill { font-size: 0.78rem; padding: 5px 11px; }
 
-  /* Quiz */
-  .quiz-progress-bar { margin-bottom: 20px; }
+  /* ── Cards ── */
+  .card { padding: 18px 16px; border-radius: 12px; }
+  /* Disable card hover lift on touch devices (prevents layout shift) */
+  .card:hover { transform: none; }
+
+  /* ── Quiz page ── */
   .quiz-header { gap: 8px; }
   .quiz-header h2 { font-size: 1rem; }
-  .question-card { padding: 18px 16px; }
-  .question-text { font-size: 0.92rem; }
-  .option-label { padding: 11px 13px; font-size: 0.88rem; gap: 10px; }
-  .timer-box { padding: 6px 12px; font-size: 0.88rem; }
 
-  /* Submit bar: stack vertically */
+  .question-card { padding: 16px 14px; margin-bottom: 14px; border-radius: 12px; }
+  .question-text { font-size: 0.91rem; line-height: 1.7; }
+  .question-number { font-size: 0.7rem; margin-bottom: 8px; }
+
+  .option-label {
+    padding: 12px 12px;
+    font-size: 0.87rem;
+    gap: 10px;
+    border-radius: 8px;
+  }
+  .option-key { width: 26px; height: 26px; font-size: 0.7rem; }
+
+  .timer-box { padding: 5px 10px; font-size: 0.86rem; gap: 5px; }
+
+  /* ── Submit bar: stack vertically for readability ── */
   .submit-bar {
     flex-direction: column;
     align-items: stretch;
     text-align: center;
-    padding: 12px 16px;
+    padding: 10px 14px;
+    gap: 8px;
   }
-  .submit-bar .btn { width: 100%; }
+  .submit-bar-info { font-size: 0.84rem; }
+  .submit-bar .btn { width: 100%; justify-content: center; }
 
-  /* Result */
-  .result-hero { padding: 36px 16px 24px; }
-  .score-ring { width: 140px; height: 140px; }
-  .score-ring-inner { width: 104px; height: 104px; }
-  .score-number { font-size: 1.8rem; }
+  /* ── Result page ── */
+  .result-hero { padding: 32px 16px 20px; }
+  .score-ring { width: 130px; height: 130px; }
+  .score-ring-inner { width: 96px; height: 96px; }
+  .score-number { font-size: 1.7rem; }
+  .result-badge { font-size: 0.82rem; padding: 6px 16px; }
 
-  /* Admin */
+  /* Result pills: allow wrapping */
+  #resultPills { flex-wrap: wrap; justify-content: center; gap: 6px; }
+
+  /* Breakdown text ── prevent long answer text from overflowing */
+  .breakdown-q { font-size: 0.84rem; }
+  .breakdown-ans { font-size: 0.78rem; word-break: break-word; }
+
+  /* ── Admin ── */
   .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .stat-card { padding: 16px; }
-  .stat-value { font-size: 1.5rem; }
-  .stat-label { font-size: 0.7rem; }
-  .table-section .flex { flex-direction: column; align-items: stretch; }
-  #searchInput { width: 100% !important; }
+  .stat-card { padding: 14px 12px; }
+  .stat-value { font-size: 1.45rem; }
+  .stat-label { font-size: 0.68rem; }
 
-  /* About */
+  /* Admin heading + search: stack vertically */
+  .flex.items-center.justify-between { flex-direction: column; align-items: stretch; }
+  #searchInput { width: 100% !important; max-width: 100% !important; }
+  #tableHeading { margin-bottom: 8px; }
+
+  /* Admin table: horizontal scroll without outer overflow */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+  }
+  table { font-size: 0.82rem; min-width: 480px; }
+  th, td { padding: 10px 10px; }
+
+  /* ── About page ── */
+  .about-hero { padding: 40px 16px 24px; }
   .author-card { flex-direction: column; align-items: center; text-align: center; }
+  .author-info { min-width: unset; width: 100%; }
+  .author-info h2 { font-size: 1.3rem; }
   .author-avatar { width: 80px; height: 80px; font-size: 2rem; }
-  .contact-links { justify-content: center; }
-  .tech-grid { grid-template-columns: repeat(2, 1fr); }
+  .author-designation { font-size: 0.84rem; }
+  .contact-links { justify-content: center; flex-wrap: wrap; }
+  .contact-link { font-size: 0.8rem; padding: 7px 13px; }
+  .tech-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .tech-card { padding: 16px 12px; }
+  .tech-icon { font-size: 1.5rem; }
+  .tech-name { font-size: 0.84rem; }
+  .tech-desc { font-size: 0.72rem; }
 
-  /* Modal */
-  .modal-box { padding: 20px 16px; max-height: 92vh; }
+  /* ── Modal ── */
+  .modal-box {
+    padding: 18px 14px;
+    max-height: 90vh;
+    border-radius: 14px;
+    margin: 8px;
+    width: calc(100% - 16px);
+  }
+  .modal-close { width: 30px; height: 30px; font-size: 0.9rem; }
+
+  /* ── Site footer ── */
+  .site-footer { padding: 24px 16px 20px; font-size: 0.78rem; line-height: 2; }
+  .site-footer a { word-break: break-all; }
+
+  /* ── Charts: ensure full width scroll ── */
+  .chart-bars { padding: 12px 10px 0; }
+  .chart-bar-wrap { min-width: 22px; }
+  .chart-bar-label, .chart-bar-pct { font-size: 0.55rem; }
 }
 
 /* ════════════════════════════════════════
    RESPONSIVE — Small phones (≤ 400px)
    ════════════════════════════════════════ */
 @media (max-width: 400px) {
+  /* Hide brand text to free navbar space */
   .navbar-brand .brand-text { display: none; }
+
+  .container, .container--wide { padding: 16px 12px; }
+
+  h1 { font-size: 1.4rem; }
+  h2 { font-size: 1.1rem; }
+
   .stat-grid { grid-template-columns: 1fr 1fr; }
   .tech-grid { grid-template-columns: 1fr 1fr; }
+
   .info-pills { gap: 5px; }
-  .pill { font-size: 0.72rem; padding: 4px 10px; }
+  .pill { font-size: 0.72rem; padding: 4px 9px; }
+
+  .question-text { font-size: 0.88rem; }
+  .option-label { font-size: 0.84rem; padding: 11px 10px; }
+
+  /* Score ring: smaller on tiny screens */
+  .score-ring { width: 120px; height: 120px; }
+  .score-ring-inner { width: 88px; height: 88px; }
+  .score-number { font-size: 1.5rem; }
+
+  .hero-badge { font-size: 0.7rem; padding: 4px 10px; letter-spacing: 0.03em; }
+
+  .submit-bar { padding: 8px 10px; }
+  .submit-bar-info { font-size: 0.8rem; }
 }
 
-/* ── Custom Global Scrollbar ── */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--bg3);
-  border-radius: 5px;
-  border: 2.5px solid var(--bg);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--indigo-lt);
+/* ════════════════════════════════════════
+   SCROLLBAR — Desktop only (hides on mobile)
+   ════════════════════════════════════════ */
+@media (min-width: 641px) {
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--bg3);
+    border-radius: 5px;
+    border: 2px solid var(--bg);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--indigo-lt); }
 }
 
 /* ── Custom Text Selection ── */
