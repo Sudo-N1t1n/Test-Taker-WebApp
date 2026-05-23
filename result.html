@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Result — Physics For Fun</title>
+  <meta name="description" content="See your Physics Practical Skills Pre-Test results." />
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚗️</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <span class="navbar-brand">⚗️ <span class="brand-text">Physics For Fun</span></span>
+    <div class="navbar-right">
+      <a href="about.html" class="nav-link">About</a>
+      <a href="index.html" class="btn btn-secondary" style="padding:8px 14px;font-size:0.82rem;">Take Again</a>
+    </div>
+  </nav>
+
+  <div id="loadingState" style="text-align:center;padding:80px 20px;color:var(--text-muted);">
+    Loading your results…
+  </div>
+
+  <div id="resultContent" style="display:none;">
+
+    <section class="result-hero fade-up">
+      <div id="resultBadgeWrap"></div>
+      <div class="score-ring-wrap">
+        <div class="score-ring" id="scoreRing">
+          <div class="score-ring-inner">
+            <div class="score-number" id="scoreNumber">—</div>
+            <div class="score-total">of 25</div>
+          </div>
+        </div>
+      </div>
+      <h1 id="resultHeading" style="margin-bottom:8px;"></h1>
+      <p id="resultSubtitle" style="max-width:440px;margin:0 auto 24px;"></p>
+      <div class="info-pills" style="justify-content:center;" id="resultPills"></div>
+    </section>
+
+    <div class="container">
+
+      <!-- Summary card -->
+      <div class="card fade-up fade-up-1" style="margin-bottom:20px;">
+        <div style="display:flex;flex-wrap:wrap;gap:20px;">
+          <div>
+            <div
+              style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:4px;">
+              Name</div>
+            <div style="font-weight:600;" id="summaryName">—</div>
+          </div>
+          <div>
+            <div
+              style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:4px;">
+              Email</div>
+            <div style="font-weight:600;word-break:break-all;" id="summaryEmail">—</div>
+          </div>
+          <div>
+            <div
+              style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:4px;">
+              Submitted</div>
+            <div style="font-weight:600;" id="summaryDate">—</div>
+          </div>
+          <div>
+            <div
+              style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:4px;">
+              Time Taken</div>
+            <div style="font-weight:600;" id="summaryTime">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="card fade-up fade-up-2">
+        <h2 style="margin-bottom:20px;">Answer Breakdown</h2>
+        <div id="breakdownList"></div>
+      </div>
+
+      <div class="text-center mt-32">
+        <a href="index.html" class="btn btn-primary">Take the Test Again →</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div>Quiz by <strong>Mr. Dinesh Nagar</strong> &bull; UMS Physics Teacher, CM RISE Sabakheda</div>
+    <div style="margin-top:4px;">
+      📞 <a href="tel:9993355323">9993355323</a> &nbsp;|&nbsp;
+      ✉️ <a href="mailto:Dineshnagar76@gmail.com">Dineshnagar76@gmail.com</a>
+    </div>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const submission = getCachedSubmission();
+
+    if (!submission) {
+      document.getElementById('loadingState').innerHTML = `
+        <div style="max-width:360px;margin:0 auto;">
+          <div style="font-size:3rem;margin-bottom:12px;">🔍</div>
+          <h2>No Result Found</h2>
+          <p style="margin:8px 0 24px;">You haven't taken the test yet, or your session expired.</p>
+          <a href="index.html" class="btn btn-primary">Start the Test →</a>
+        </div>
+      `;
+    } else {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('resultContent').style.display = 'block';
+
+      const pct = Math.round((submission.score / submission.total) * 100);
+
+      // Score ring
+      const ring = document.getElementById('scoreRing');
+      ring.style.setProperty('--pct', pct);
+      ring.classList.add(submission.passed ? 'pass' : 'fail', submission.passed ? 'pulse-green' : 'pulse-red');
+      document.getElementById('scoreNumber').textContent = submission.score;
+
+      // Badge
+      document.getElementById('resultBadgeWrap').innerHTML = `
+        <div class="result-badge ${submission.passed ? 'pass' : 'fail'}" style="margin-bottom:20px;">
+          ${submission.passed ? '🏆 PASSED' : '❌ NOT PASSED'}
+        </div>`;
+
+      // Heading
+      const firstName = submission.name.split(' ')[0];
+      document.getElementById('resultHeading').textContent =
+        submission.passed ? `Well done, ${firstName}!` : `Keep Practising, ${firstName}!`;
+      document.getElementById('resultSubtitle').textContent =
+        submission.passed
+          ? `You scored ${submission.score}/25 (${pct}%) — above the pass mark.`
+          : `You scored ${submission.score}/25 (${pct}%). Pass mark is 10/25. Review your answers below.`;
+
+      // Pills
+      document.getElementById('resultPills').innerHTML = `
+        <div class="pill">✅ <span style="color:var(--green)">${submission.score} Correct</span></div>
+        <div class="pill">❌ <span style="color:var(--red)">${submission.total - submission.score} Wrong</span></div>
+        <div class="pill">📊 <span>${pct}%</span></div>`;
+
+      // Summary
+      document.getElementById('summaryName').textContent = submission.name;
+      document.getElementById('summaryEmail').textContent = submission.email;
+      document.getElementById('summaryDate').textContent = formatDate(submission.submittedAt);
+      const mins = Math.floor(submission.timeTaken / 60);
+      const secs = submission.timeTaken % 60;
+      document.getElementById('summaryTime').textContent = `${mins}m ${secs}s`;
+
+      // Breakdown
+      const list = document.getElementById('breakdownList');
+      submission.details.forEach((d, i) => {
+        const q = QUESTIONS[i];
+        const isCorrect = d.isCorrect;
+        const item = document.createElement('div');
+        item.className = 'breakdown-item';
+
+        let answerInfo = '';
+        if (isCorrect) {
+          answerInfo = `<span class="correct-text">Your answer: ${d.given} — Correct ✓</span>`;
+        } else if (d.given) {
+          answerInfo = `<span class="wrong-text">Your answer: ${d.given} — Wrong</span> &nbsp;|&nbsp; Correct: <span class="correct-text">${d.correct}</span>`;
+        } else {
+          answerInfo = `<span class="wrong-text">Not answered</span> &nbsp;|&nbsp; Correct: <span class="correct-text">${d.correct}</span>`;
+        }
+
+        item.innerHTML = `
+          <div class="breakdown-icon ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✅' : '❌'}</div>
+          <div class="breakdown-body">
+            <div class="breakdown-q">Q${q.id}. ${q.text}</div>
+            <div class="breakdown-ans">${answerInfo}</div>
+            ${!isCorrect ? `<div class="breakdown-ans" style="margin-top:4px;color:var(--text-muted);font-size:0.77rem;">${d.correct}: ${q.options[d.correct]}</div>` : ''}
+          </div>`;
+        list.appendChild(item);
+      });
+    }
+  </script>
+</body>
+
+</html>
