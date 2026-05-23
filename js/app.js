@@ -38,7 +38,7 @@ const QUESTIONS = [
   },
   {
     id: 3,
-    text: "In a spherometer experiment to determine the radius of curvature <var>R</var> of a spherical surface, the formula used is <var>R</var> = (<var>l</var><sup>2</sup> / 6<var>h</var>) + (<var>h</var> / 2). What does the variable <var>l</var> represent?",
+    text: "In a spherometer experiment to determine the radius of curvature R of a spherical surface, the formula used is R = (l² / 6h) + (h / 2). What does the variable l represent?",
     options: {
       A: "The total diameter of the lens or curved surface under measurement.",
       B: "The vertical distance moved by the central screw from the flat plane.",
@@ -60,7 +60,7 @@ const QUESTIONS = [
   },
   {
     id: 5,
-    text: "Why is a small, high-density spherical brass bob preferred over a large wooden bob in a simple pendulum experiment to determine the acceleration due to gravity (<var>g</var>)?",
+    text: "Why is a small, high-density spherical brass bob preferred over a large wooden bob in a simple pendulum experiment to determine the acceleration due to gravity (g)?",
     options: {
       A: "To increase the period of oscillation so it can be timed manually with higher precision.",
       B: "To minimize air resistance effects and maintain a consistent, compact center of gravity.",
@@ -71,12 +71,12 @@ const QUESTIONS = [
   },
   {
     id: 6,
-    text: "In a resonance tube experiment, the first resonance length is <var>l</var><sub>1</sub> and the second resonance length is <var>l</var><sub>2</sub>. What is the standard expression for the end correction <var>e</var>?",
+    text: "In a resonance tube experiment, the first resonance length is l₁ and the second resonance length is l₂. What is the standard expression for the end correction e?",
     options: {
-      A: "<var>e</var> = <var>l</var><sub>2</sub> − 2<var>l</var><sub>1</sub>",
-      B: "<var>e</var> = (3<var>l</var><sub>1</sub> − <var>l</var><sub>2</sub>) / 2",
-      C: "<var>e</var> = (<var>l</var><sub>2</sub> − 3<var>l</var><sub>1</sub>) / 2",
-      D: "<var>e</var> = (<var>l</var><sub>2</sub> − <var>l</var><sub>1</sub>) / 2"
+      A: "e = l₂ − 2l₁",
+      B: "e = (3l₁ − l₂) / 2",
+      C: "e = (l₂ − 3l₁) / 2",
+      D: "e = (l₂ − l₁) / 2"
     },
     correct: "C"
   },
@@ -139,10 +139,10 @@ const QUESTIONS = [
     id: 12,
     text: "In a convex lens experiment to find the focal length, which of the following graph coordinates produces a straight line that can be easily used to read the focal length from its intercepts?",
     options: {
-      A: "A plot of 1/<var>v</var> on the Y-axis versus 1/<var>u</var> on the X-axis (using Cartesian sign conventions).",
-      B: "A plot of direct image distance <var>v</var> versus direct object distance <var>u</var>.",
-      C: "A plot of <var>u</var><sup>2</sup> versus <var>v</var><sup>2</sup>.",
-      D: "A plot of <var>u</var> on the Y-axis versus 1/<var>v</var> on the X-axis."
+      A: "A plot of 1/v on the Y-axis versus 1/u on the X-axis (using Cartesian sign conventions).",
+      B: "A plot of direct image distance v versus direct object distance u.",
+      C: "A plot of u² versus v².",
+      D: "A plot of u on the Y-axis versus 1/v on the X-axis."
     },
     correct: "A"
   },
@@ -159,7 +159,7 @@ const QUESTIONS = [
   },
   {
     id: 14,
-    text: "When plotting the relationship between the angle of incidence (<var>i</var>) and the angle of deviation (<var>δ</var>) for a glass prism, what is the characteristic shape of the resulting curve?",
+    text: "When plotting the relationship between the angle of incidence (i) and the angle of deviation (δ) for a glass prism, what is the characteristic shape of the resulting curve?",
     options: {
       A: "It remains entirely constant across all changes to the angle of incidence.",
       B: "It increases linearly as the angle of incidence increases.",
@@ -170,23 +170,23 @@ const QUESTIONS = [
   },
   {
     id: 15,
-    text: "To convert a galvanometer of coil resistance <var>G</var> into an ammeter of a desired range 0 to <var>I</var>, a shunt resistance <var>S</var> is connected in parallel. If the full-scale deflection current is <var>I</var><sub>g</sub>, what is the correct formula for <var>S</var>?",
+    text: "To convert a galvanometer of coil resistance G into an ammeter of a desired range 0 to I, a shunt resistance S is connected in parallel. If the full-scale deflection current is Ig, what is the correct formula for S?",
     options: {
-      A: "<var>S</var> = (<var>I</var> − <var>I</var><sub>g</sub>) × <var>G</var>",
-      B: "<var>S</var> = ((<var>I</var> − <var>I</var><sub>g</sub>) × <var>G</var>) / <var>I</var><sub>g</sub>",
-      C: "<var>S</var> = (<var>I</var><sub>g</sub> × <var>G</var>) / <var>I</var>",
-      D: "<var>S</var> = (<var>I</var><sub>g</sub> × <var>G</var>) / (<var>I</var> − <var>I</var><sub>g</sub>)"
+      A: "S = (I − Ig) × G",
+      B: "S = ((I − Ig) × G) / Ig",
+      C: "S = (Ig × G) / I",
+      D: "S = (Ig × G) / (I − Ig)"
     },
     correct: "D"
   },
   {
     id: 16,
-    text: "When converting a galvanometer into a voltmeter, a high resistance <var>R</var> is connected in series. If the desired voltage range is <var>V</var> and the galvanometer resistance is <var>G</var>, what is the mathematically sound choice for <var>R</var>?",
+    text: "When converting a galvanometer into a voltmeter, a high resistance R is connected in series. If the desired voltage range is V and the galvanometer resistance is G, what is the mathematically sound choice for R?",
     options: {
-      A: "<var>R</var> = (<var>V</var> / <var>I</var><sub>g</sub>) − <var>G</var>",
-      B: "<var>R</var> = (<var>I</var><sub>g</sub> / <var>V</var>) − <var>G</var>",
-      C: "<var>R</var> = (<var>V</var> − <var>G</var>) / <var>I</var><sub>g</sub>",
-      D: "<var>R</var> = <var>V</var> × <var>I</var><sub>g</sub> − <var>G</var>"
+      A: "R = (V / Ig) − G",
+      B: "R = (Ig / V) − G",
+      C: "R = (V − G) / Ig",
+      D: "R = V × Ig − G"
     },
     correct: "A"
   },
@@ -203,7 +203,7 @@ const QUESTIONS = [
   },
   {
     id: 18,
-    text: "When validating Newton's Law of Cooling, a graph of ln(<var>θ</var> − <var>θ</var><sub>0</sub>) versus time (<var>t</var>) is plotted (where <var>θ</var> is the container temperature and <var>θ</var><sub>0</sub> is room temperature). What should the shape of this graph be?",
+    text: "When validating Newton's Law of Cooling, a graph of ln(θ − θ₀) versus time (t) is plotted (where θ is the container temperature and θ₀ is room temperature). What should the shape of this graph be?",
     options: {
       A: "A perfect parabola that opens upward.",
       B: "A straight line passing through the origin with a positive slope.",
@@ -214,12 +214,12 @@ const QUESTIONS = [
   },
   {
     id: 19,
-    text: "In a sonometer experiment, if the wire tension <var>T</var> and linear mass density <var>m</var> are held constant, what relationship should be plotted to yield a straight line passing through the origin?",
+    text: "In a sonometer experiment, if the wire tension T and linear mass density m are held constant, what relationship should be plotted to yield a straight line passing through the origin?",
     options: {
-      A: "The square of frequency (<var>f</var><sup>2</sup>) directly versus the length (<var>l</var>).",
-      B: "Frequency (<var>f</var>) directly versus the vibrating length (<var>l</var>).",
-      C: "Frequency (<var>f</var>) versus the square root of length.",
-      D: "Frequency (<var>f</var>) on the Y-axis versus the reciprocal of length (1/<var>l</var>) on the X-axis."
+      A: "The square of frequency (f²) directly versus the length (l).",
+      B: "Frequency (f) directly versus the vibrating length (l).",
+      C: "Frequency (f) versus the square root of length.",
+      D: "Frequency (f) on the Y-axis versus the reciprocal of length (1/l) on the X-axis."
     },
     correct: "D"
   },
@@ -247,12 +247,12 @@ const QUESTIONS = [
   },
   {
     id: 22,
-    text: "A student uses a travelling microscope to measure the refractive index of a glass slab. They record three vertical positions: the real bottom mark (<var>R</var><sub>1</sub>), the apparent bottom mark viewed through the slab (<var>R</var><sub>2</sub>), and a powder mark on the top surface (<var>R</var><sub>3</sub>). What is the correct expression for the refractive index <var>μ</var>?",
+    text: "A student uses a travelling microscope to measure the refractive index of a glass slab. They record three vertical positions: the real bottom mark (R₁), the apparent bottom mark viewed through the slab (R₂), and a powder mark on the top surface (R₃). What is the correct expression for the refractive index μ?",
     options: {
-      A: "<var>μ</var> = (<var>R</var><sub>2</sub> − <var>R</var><sub>1</sub>) / (<var>R</var><sub>3</sub> − <var>R</var><sub>1</sub>)",
-      B: "<var>μ</var> = (<var>R</var><sub>3</sub> − <var>R</var><sub>2</sub>) / (<var>R</var><sub>3</sub> − <var>R</var><sub>1</sub>)",
-      C: "<var>μ</var> = (<var>R</var><sub>3</sub> − <var>R</var><sub>1</sub>) / (<var>R</var><sub>3</sub> − <var>R</var><sub>2</sub>)",
-      D: "<var>μ</var> = (<var>R</var><sub>3</sub> − <var>R</var><sub>1</sub>) / (<var>R</var><sub>2</sub> − <var>R</var><sub>1</sub>)"
+      A: "μ = (R₂ − R₁) / (R₃ − R₁)",
+      B: "μ = (R₃ − R₂) / (R₃ − R₁)",
+      C: "μ = (R₃ − R₁) / (R₃ − R₂)",
+      D: "μ = (R₃ − R₁) / (R₂ − R₁)"
     },
     correct: "C"
   },
@@ -269,12 +269,12 @@ const QUESTIONS = [
   },
   {
     id: 24,
-    text: "When analyzing an experiment governed by the physical law <var>y</var> = <var>k</var><var>x</var><sup>2</sup>, what variables should be plotted on the axes to determine the constant value <var>k</var> directly from the slope of a linear graph?",
+    text: "When analyzing an experiment governed by the physical law y = kx², what variables should be plotted on the axes to determine the constant value k directly from the slope of a linear graph?",
     options: {
-      A: "Plot <var>y</var> on the Y-axis versus <var>x</var><sup>2</sup> on the X-axis.",
-      B: "Plot <var>y</var> directly versus <var>x</var>.",
-      C: "Plot √<var>y</var> versus <var>x</var><sup>2</sup>.",
-      D: "Plot <var>y</var> versus 1/<var>x</var>."
+      A: "Plot y on the Y-axis versus x² on the X-axis.",
+      B: "Plot y directly versus x.",
+      C: "Plot √y versus x².",
+      D: "Plot y versus 1/x."
     },
     correct: "A"
   },
