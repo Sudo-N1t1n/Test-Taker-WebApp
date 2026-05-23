@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <meta name="description" content="Admin-only results dashboard for the Physics For Fun Pre-Test." />
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚗️</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .loading-shimmer {
+      background: linear-gradient(90deg, var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+      height: 48px;
+    }
+
+    @keyframes shimmer {
+      from {
+        background-position: 200% 0;
+      }
+
+      to {
+        background-position: -200% 0;
+      }
+    }
+
+    /* Hide some table columns on small phones */
+    @media (max-width: 520px) {
+
+      .col-email,
+      .col-time {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Password Gate -->
+  <div class="gate" id="gateView">
+    <div class="card gate-card">
+      <div class="gate-icon">🔒</div>
+      <h2 style="margin-bottom:6px;">Admin Access</h2>
+      <p style="margin-bottom:24px;">Enter the admin password to view all submissions.</p>
+      <form id="gateForm" novalidate>
+        <div class="form-group">
+          <label for="pwdInput">Password</label>
+          <input type="password" id="pwdInput" placeholder="Enter admin password" autocomplete="current-password" />
+        </div>
+        <div class="gate-error" id="gateError">Incorrect password. Please try again.</div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">
+          Unlock Dashboard →
+        </button>
+      </form>
+      <p style="margin-top:20px;font-size:0.82rem;">
+        <a href="index.html" style="color:var(--indigo-lt);text-decoration:none;">← Back to Test</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboardView" style="display:none;">
+
+    <nav class="navbar">
+      <span class="navbar-brand">⚗️ <span class="brand-text">Admin Dashboard</span></span>
+      <div class="navbar-right">
+        <span style="font-size:0.8rem;color:var(--text-muted);">
+          <span class="live-dot"></span>Live
+        </span>
+        <a href="index.html" class="nav-link">← Test</a>
+        <button class="btn btn-danger" style="padding:8px 14px;font-size:0.82rem;" id="clearBtn"
+          onclick="clearAllData()">
+          🗑️ Clear
+        </button>
+      </div>
+    </nav>
+
+    <div class="container--wide" style="padding:24px 16px;">
+
+      <!-- Stat cards -->
+      <div class="stat-grid fade-up">
+        <div class="stat-card">
+          <div class="stat-label">Total Submissions</div>
+          <div class="stat-value cyan" id="statTotal">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Average Score</div>
+          <div class="stat-value amber" id="statAvg">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Highest Score</div>
+          <div class="stat-value green" id="statHigh">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pass Rate</div>
+          <div class="stat-value" id="statPass">—</div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="card fade-up fade-up-1 chart-section">
+        <h3>Per-Question Correct %
+          <span style="font-size:0.73rem;font-weight:400;color:var(--text-muted);">— live, scroll to see all 25</span>
+        </h3>
+        <p style="font-size:0.8rem;margin-top:2px;margin-bottom:14px;">
+          <span style="color:var(--green);">■</span> ≥70%&nbsp;
+          <span style="color:var(--amber);">■</span> 40–69%&nbsp;
+          <span style="color:var(--red);">■</span> &lt;40%
+        </p>
+        <div class="chart-bars" id="chartBars">
+          <div style="color:var(--text-muted);font-size:0.85rem;padding:16px;">Waiting for submissions…</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="fade-up fade-up-2">
+        <div class="flex items-center justify-between mb-16" style="flex-wrap:wrap;gap:12px;">
+          <h3 id="tableHeading">All Submissions</h3>
+          <input type="text" id="searchInput" placeholder="🔍 Search by name or email…" style="background:var(--bg2);border:1px solid var(--border);border-radius:50px;
+                   padding:9px 18px;color:var(--text);font-family:inherit;font-size:0.86rem;
+                   outline:none;width:100%;max-width:280px;transition:border-color 0.2s;"
+            oninput="renderTableFromCache()" onfocus="this.style.borderColor='var(--indigo)'"
+            onblur="this.style.borderColor='var(--border)'" />
+        </div>
+        <div class="table-wrap">
+          <table id="submissionsTable" style="display:none;">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th class="col-email">Email</th>
+                <th>Score</th>
+                <th>%</th>
+                <th>Result</th>
+                <th class="col-time">Time</th>
+                <th>Submitted</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <div class="empty-icon">📭</div>
+          <h3>No submissions yet</h3>
+          <p style="margin-top:6px;">Submissions appear here in real-time as students complete the quiz.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="site-footer">
+      <div>⚗️ <strong>Physics For Fun</strong> — Admin Dashboard</div>
+      <div style="margin-top:4px;">
+        Quiz by <strong>Mr. Dinesh Nagar</strong> &bull; UMS Physics Teacher, CM RISE Sabakheda &bull;
+        <a href="mailto:Dineshnagar76@gmail.com">Dineshnagar76@gmail.com</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Detail modal -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeDetail()">✕</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // ── Auth ──
+    if (sessionStorage.getItem('admin_auth') === 'true') showDashboard();
+
+    document.getElementById('gateForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pwd = document.getElementById('pwdInput').value;
+      if (pwd === CONFIG.adminPassword) {
+        sessionStorage.setItem('admin_auth', 'true');
+        showDashboard();
+      } else {
+        document.getElementById('gateError').style.display = 'block';
+        document.getElementById('pwdInput').value = '';
+        document.getElementById('pwdInput').focus();
+      }
+    });
+
+    function showDashboard() {
+      document.getElementById('gateView').style.display = 'none';
+      document.getElementById('dashboardView').style.display = 'block';
+      startLiveListener();
+    }
+
+    // ── Real-time listener ──
+    let currentSubmissions = [];
+    let unsubscribe = null;
+
+    function startLiveListener() {
+      if (unsubscribe) unsubscribe();
+      unsubscribe = subscribeToSubmissions((submissions) => {
+        currentSubmissions = submissions;
+        renderStats(submissions);
+        renderChart(submissions);
+        renderTableFromCache();
+      });
+    }
+
+    // ── Stats ──
+    function renderStats(submissions) {
+      const total = submissions.length;
+      document.getElementById('statTotal').textContent = total;
+      if (total === 0) {
+        ['statAvg', 'statHigh', 'statPass'].forEach(id => document.getElementById(id).textContent = '—');
+        document.getElementById('statPass').className = 'stat-value';
+      } else {
+        const scores = submissions.map(s => s.score);
+        const avg = scores.reduce((a, b) => a + b, 0) / total;
+        const high = Math.max(...scores);
+        const passCount = submissions.filter(s => s.passed).length;
+        const passRate = Math.round((passCount / total) * 100);
+        document.getElementById('statAvg').textContent = avg.toFixed(1) + '/25';
+        document.getElementById('statHigh').textContent = high + '/25';
+        const passEl = document.getElementById('statPass');
+        passEl.textContent = passRate + '%';
+        passEl.className = 'stat-value ' + (passRate >= 60 ? 'green' : 'red');
+      }
+    }
+
+    // ── Chart ──
+    function renderChart(submissions) {
+      const chartEl = document.getElementById('chartBars');
+      chartEl.innerHTML = '';
+      if (submissions.length === 0) {
+        chartEl.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;padding:16px;">Waiting for submissions…</div>';
+        return;
+      }
+      const total = submissions.length;
+      const correctCounts = new Array(QUESTIONS.length).fill(0);
+      submissions.forEach(s => (s.details || []).forEach((d, i) => { if (d.isCorrect) correctCounts[i]++; }));
+      const maxPct = Math.max(...correctCounts.map(c => Math.round((c / total) * 100)), 1);
+
+      correctCounts.forEach((count, i) => {
+        const pct = Math.round((count / total) * 100);
+        const heightPx = Math.max(4, Math.round((pct / maxPct) * 140));
+        let barColor = 'linear-gradient(180deg,var(--green),#16a34a)';
+        if (pct < 40) barColor = 'linear-gradient(180deg,var(--red),#be123c)';
+        else if (pct < 70) barColor = 'linear-gradient(180deg,var(--amber),#d97706)';
+        const wrap = document.createElement('div');
+        wrap.className = 'chart-bar-wrap';
+        wrap.title = `Q${i + 1}: ${pct}% correct (${count}/${total})`;
+        wrap.innerHTML = `
+          <div class="chart-bar-pct">${pct}%</div>
+          <div class="chart-bar" style="height:${heightPx}px;background:${barColor};"></div>
+          <div class="chart-bar-label">Q${i + 1}</div>`;
+        chartEl.appendChild(wrap);
+      });
+    }
+
+    // ── Table ──
+    function renderTableFromCache() {
+      const all = currentSubmissions;
+      const query = (document.getElementById('searchInput').value || '').toLowerCase();
+      const filtered = query
+        ? all.filter(s => s.name.toLowerCase().includes(query) || s.email.toLowerCase().includes(query))
+        : all;
+
+      const tbody = document.getElementById('tableBody');
+      const table = document.getElementById('submissionsTable');
+      const empty = document.getElementById('emptyState');
+
+      document.getElementById('tableHeading').textContent =
+        query ? `Results for "${query}" (${filtered.length})` : `All Submissions (${all.length})`;
+
+      tbody.innerHTML = '';
+
+      if (all.length === 0) { table.style.display = 'none'; empty.style.display = 'block'; return; }
+      table.style.display = 'table';
+      empty.style.display = 'none';
+
+      filtered.forEach((s, idx) => {
+        const pct = Math.round((s.score / s.total) * 100);
+        const mins = Math.floor(s.timeTaken / 60);
+        const secs = s.timeTaken % 60;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color:var(--text-muted);">${idx + 1}</td>
+          <td style="font-weight:600;">${escHtml(s.name)}</td>
+          <td class="col-email" style="color:var(--text-muted);font-size:0.83rem;">${escHtml(s.email)}</td>
+          <td class="score-cell">${s.score}/${s.total}</td>
+          <td>${pct}%</td>
+          <td><span class="${s.passed ? 'badge-pass' : 'badge-fail'}">${s.passed ? '✅ Pass' : '❌ Fail'}</span></td>
+          <td class="col-time">${mins}m ${secs}s</td>
+          <td style="font-size:0.8rem;color:var(--text-muted);">${formatDate(s.submittedAt)}</td>
+          <td>
+            <button class="btn btn-secondary" style="padding:6px 12px;font-size:0.78rem;" onclick="openDetail('${escHtml(s.id)}')">
+              View
+            </button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ── Detail modal ──
+    function openDetail(id) {
+      const s = currentSubmissions.find(sub => sub.id === id);
+      if (!s) return;
+      const pct = Math.round((s.score / s.total) * 100);
+      const mins = Math.floor(s.timeTaken / 60);
+      const secs = s.timeTaken % 60;
+      const breakdownHTML = (s.details || []).map((d, i) => {
+        const q = QUESTIONS[i], ic = d.isCorrect;
+        let info = ic
+          ? `<span style="color:var(--green);font-weight:600;">Your answer: ${d.given} — Correct ✓</span>`
+          : d.given
+            ? `<span style="color:var(--red);font-weight:600;">Your answer: ${d.given} — Wrong</span> | Correct: <span style="color:var(--green);font-weight:600;">${d.correct}</span>`
+            : `<span style="color:var(--red);">Not answered</span> | Correct: <span style="color:var(--green);font-weight:600;">${d.correct}</span>`;
+        return `<div class="breakdown-item">
+          <div class="breakdown-icon ${ic ? 'correct' : 'wrong'}">${ic ? '✅' : '❌'}</div>
+          <div class="breakdown-body">
+            <div class="breakdown-q">Q${q.id}. ${q.text}</div>
+            <div class="breakdown-ans">${info}</div>
+          </div></div>`;
+      }).join('');
+
+      document.getElementById('modalContent').innerHTML = `
+        <h2 style="margin-bottom:4px;">${escHtml(s.name)}</h2>
+        <p style="margin-bottom:16px;">${escHtml(s.email)} · ${formatDate(s.submittedAt)}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+          <div class="pill">📊 Score: <span>${s.score}/${s.total} (${pct}%)</span></div>
+          <div class="pill">${s.passed ? '✅' : '❌'} <span>${s.passed ? 'Passed' : 'Failed'}</span></div>
+          <div class="pill">⏱️ <span>${mins}m ${secs}s</span></div>
+        </div>
+        <hr class="divider"/>
+        <h3 style="margin-bottom:16px;">Answer Breakdown</h3>
+        ${breakdownHTML}`;
+      document.getElementById('detailModal').classList.add('open');
+    }
+
+    function closeDetail() {
+      document.getElementById('detailModal').classList.remove('open');
+    }
+
+    document.getElementById('detailModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('detailModal')) closeDetail();
+    });
+
+    // ── Clear all ──
+    async function clearAllData() {
+      const total = currentSubmissions.length;
+      if (total === 0) { alert('No data to clear.'); return; }
+      if (!confirm(`⚠️ Permanently delete all ${total} submission(s)?`)) return;
+      const btn = document.getElementById('clearBtn');
+      btn.disabled = true; btn.textContent = '⏳ Clearing…';
+      try {
+        await clearSubmissions();
+        alert('✅ All submissions deleted.');
+      } catch (err) {
+        console.error(err);
+        alert('❌ Failed. Check console.');
+      } finally {
+        btn.disabled = false; btn.textContent = '🗑️ Clear';
+      }
+    }
+  </script>
+</body>
+
+</html>
