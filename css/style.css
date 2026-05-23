@@ -82,6 +82,33 @@ p  { color: var(--text-muted); line-height: 1.7; }
   background-clip: text;
 }
 
+/* Math variables and formula styling */
+var {
+  font-family: 'Cambria', 'Georgia', 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--cyan);
+}
+sub, sup {
+  font-size: 72%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+sup {
+  top: -0.4em;
+}
+sub {
+  bottom: -0.22em;
+}
+
+/* Enable hyphenation for justified texts to improve spacing quality */
+.question-text, .option-label > span:last-child, .breakdown-q {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+}
+
 /* ── Layout ── */
 .container      { max-width: 820px;  margin: 0 auto; padding: 24px 20px; }
 .container--wide{ max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
