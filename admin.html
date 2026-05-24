@@ -80,6 +80,9 @@
           onclick="clearAllData()">
           🗑️ Clear
         </button>
+        <button class="btn btn-secondary" style="padding:8px 14px;font-size:0.82rem;" onclick="logoutAdmin()">
+          🚪 Logout
+        </button>
         <button class="btn btn-secondary" style="padding:8px 14px;font-size:0.82rem;" id="refreshBtn"
           onclick="retryListener()">
           🔄 Refresh
@@ -210,6 +213,11 @@
       document.getElementById('gateView').style.display = 'none';
       document.getElementById('dashboardView').style.display = 'block';
       startLiveListener();
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem('admin_auth');
+      window.location.reload();
     }
 
     // ── Real-time listener ──

@@ -151,6 +151,9 @@
   <script src="js/firebase-config.js?v=1.1"></script>
   <script src="js/app.js?v=1.1"></script>
   <script>
+    // Clear admin session if the user returns to the home page
+    sessionStorage.removeItem('admin_auth');
+
     const form = document.getElementById('startForm');
     const errEl = document.getElementById('formError');
 
