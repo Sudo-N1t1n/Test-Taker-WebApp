@@ -2,17 +2,17 @@
 //  CONFIGURATION
 // ──────────────────────────────────────────────
 const CONFIG = {
-  adminPassword: 'admin123',
-  timerMinutes: 45,       // 45 minutes per test
-  passMark: 10,           // out of 25 (40%)
+  adminPassword: 'campione',
+  timerMinutes: 45,
+  passMark: 10,          // out of 25
   totalQuestions: 25,
   storageKey: 'quiz_submissions',   // kept for reference
   firestoreCollection: 'submissions',
 };
 
 // ──────────────────────────────────────────────
-//  QUESTION BANK  (25 MCQs from PDF)
-// ──────────────────────────────────────────────
+//  QU─ESTION BANK  (25 MCQs from PDF)
+// ─────────────────────────────────────────────
 const QUESTIONS = [
   {
     id: 1,
@@ -304,18 +304,14 @@ async function saveSubmission(submission) {
 }
 
 /**
- * Fetch all submissions from Firestore, sorted newest-first (client-side).
+ * Fetch all submissions from Firestore, newest first.
  */
 async function getSubmissions() {
   const snap = await window.db
     .collection(CONFIG.firestoreCollection)
+    .orderBy('submittedAt', 'desc')
     .get();
-  const raw = snap.docs.map(d => d.data());
-  return raw.sort((a, b) => {
-    const ta = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
-    const tb = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
-    return tb - ta;
-  });
+  return snap.docs.map(d => d.data());
 }
 
 /**
@@ -331,33 +327,18 @@ async function clearSubmissions() {
 
 /**
  * Real-time listener — calls callback(submissions[]) whenever data changes.
- * Submissions are sorted newest-first client-side (no Firestore index needed).
  * Returns the unsubscribe function.
- * @param {function} callback - called with sorted submissions array on each update
- * @param {function} [onError]  - called with the Firestore error if the listener fails
  */
-function subscribeToSubmissions(callback, onError) {
+function subscribeToSubmissions(callback) {
   return window.db
     .collection(CONFIG.firestoreCollection)
-    // ⚠️  No .orderBy() here — orderBy kills the listener permanently when a
-    //     Firestore index re-evaluates on a new write. Sort client-side instead.
-    .onSnapshot(
-      { includeMetadataChanges: false },
-      (snapshot) => {
-        const raw = snapshot.docs.map(d => d.data());
-        // Sort newest-first
-        const submissions = raw.slice().sort((a, b) => {
-          const ta = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
-          const tb = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
-          return tb - ta;
-        });
-        callback(submissions);
-      },
-      (err) => {
-        console.error('Firestore snapshot error:', err);
-        if (typeof onError === 'function') onError(err);
-      }
-    );
+    .orderBy('submittedAt', 'desc')
+    .onSnapshot(snapshot => {
+      const submissions = snapshot.docs.map(d => d.data());
+      callback(submissions);
+    }, err => {
+      console.error('Firestore snapshot error:', err);
+    });
 }
 
 // ──────────────────────────────────────────────
@@ -393,21 +374,15 @@ function formatDate(isoString) {
 
 // ── Session helpers ────────────────────────────
 
-function savePendingUser(name, uniqueid, mobile, school, email) {
-  sessionStorage.setItem('quiz_pending_name',     name);
-  sessionStorage.setItem('quiz_pending_uniqueid', uniqueid);
-  sessionStorage.setItem('quiz_pending_mobile',   mobile);
-  sessionStorage.setItem('quiz_pending_school',   school);
-  sessionStorage.setItem('quiz_pending_email',    email);
+function savePendingUser(name, email) {
+  sessionStorage.setItem('quiz_pending_name', name);
+  sessionStorage.setItem('quiz_pending_email', email);
 }
 
 function getPendingUser() {
   return {
-    name:     sessionStorage.getItem('quiz_pending_name')     || '',
-    uniqueid: sessionStorage.getItem('quiz_pending_uniqueid') || '',
-    mobile:   sessionStorage.getItem('quiz_pending_mobile')   || '',
-    school:   sessionStorage.getItem('quiz_pending_school')   || '',
-    email:    sessionStorage.getItem('quiz_pending_email')    || '',
+    name: sessionStorage.getItem('quiz_pending_name') || '',
+    email: sessionStorage.getItem('quiz_pending_email') || '',
   };
 }
 
@@ -423,30 +398,3 @@ function getCachedSubmission() {
     return raw ? JSON.parse(raw) : null;
   } catch { return null; }
 }
-
-// ──────────────────────────────────────────────
-//  SCROLL REVEAL INITIALIZATION
-// ──────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  // Add body class indicating JavaScript is active
-  document.body.classList.add('js-enabled');
-
-  // Trigger IntersectionObserver for reveal animations on older browsers
-  if (!CSS.supports('(animation-timeline: view()) and (animation-range: entry)')) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, {
-      rootMargin: '0px 0px -50px 0px',
-      threshold: 0.08
-    });
-
-    document.querySelectorAll('.scroll-reveal').forEach(el => {
-      observer.observe(el);
-    });
-  }
-});

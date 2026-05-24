@@ -34,5 +34,6 @@ if (firebaseConfig.apiKey === "PASTE_YOUR_API_KEY_HERE") {
   // ── Initialize Firebase ──────────────────────────────────────
   firebase.initializeApp(firebaseConfig);
   window.db = firebase.firestore();
+  window.__FB_PROJECT_ID__ = firebaseConfig.projectId;
   console.log('✅ Firebase connected to project:', firebaseConfig.projectId);
 }

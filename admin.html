@@ -77,10 +77,18 @@
           onclick="clearAllData()">
           🗑️ Clear
         </button>
+        <button class="btn btn-secondary" style="padding:8px 14px;font-size:0.82rem;" id="refreshBtn"
+          onclick="retryListener()">
+          🔄 Refresh
+        </button>
       </div>
     </nav>
 
     <div class="container--wide" style="padding:24px 16px;">
+
+      <!-- Firebase status banner -->
+      <div id="firebaseBanner" style="display:none;padding:14px 18px;border-radius:12px;
+           margin-bottom:20px;font-size:0.88rem;border:1px solid;"></div>
 
       <!-- Stat cards -->
       <div class="stat-grid fade-up">
@@ -130,9 +138,12 @@
         <div class="table-wrap">
           <table id="submissionsTable" style="display:none;">
             <thead>
-              <tr>
+            <tr>
                 <th>#</th>
                 <th>Name</th>
+                <th class="col-email">Unique ID</th>
+                <th class="col-email">Mobile</th>
+                <th class="col-email">School</th>
                 <th class="col-email">Email</th>
                 <th>Score</th>
                 <th>%</th>
@@ -201,15 +212,117 @@
     // ── Real-time listener ──
     let currentSubmissions = [];
     let unsubscribe = null;
+    let retryTimer = null;
+    let retryCount = 0;
 
     function startLiveListener() {
-      if (unsubscribe) unsubscribe();
-      unsubscribe = subscribeToSubmissions((submissions) => {
-        currentSubmissions = submissions;
-        renderStats(submissions);
-        renderChart(submissions);
-        renderTableFromCache();
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      if (retryTimer)  { clearTimeout(retryTimer); retryTimer = null; }
+
+      showBanner('info', '⏳ Connecting to Firestore…');
+
+      // ✔ NO orderBy here — avoids index-related listener crashes on new writes.
+      //    We sort client-side instead (see sortSubmissions below).
+      unsubscribe = window.db
+        .collection(CONFIG.firestoreCollection)
+        .onSnapshot(
+          { includeMetadataChanges: false },
+          (snapshot) => {
+            try {
+              retryCount = 0;   // reset on success
+              const submissions = sortSubmissions(snapshot.docs.map(d => d.data()));
+              currentSubmissions = submissions;
+              renderStats(submissions);
+              renderChart(submissions);
+              renderTableFromCache();
+              showBanner('ok',
+                `✅ Live — <strong>${submissions.length}</strong> submission(s) in <code>${CONFIG.firestoreCollection}</code>` +
+                ` · <a href="#" onclick="retryListener();return false;" style="color:inherit;">Refresh</a>`);
+            } catch (renderErr) {
+              console.error('Render error in snapshot callback:', renderErr);
+              showBanner('error',
+                `⚠️ Render error — ${renderErr.message}. ` +
+                `<a href="#" onclick="retryListener();return false;" style="color:var(--indigo-lt);">Retry</a>`);
+            }
+          },
+          (err) => {
+            console.error('Firestore snapshot error:', err);
+            // Listener is now dead — schedule an auto-retry with backoff
+            scheduleRetry(err);
+          }
+        );
+    }
+
+    /** Sort newest-first client-side (avoids requiring a Firestore orderBy index). */
+    function sortSubmissions(arr) {
+      return arr.slice().sort((a, b) => {
+        const ta = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+        const tb = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+        return tb - ta;
       });
+    }
+
+    /** Called by Refresh button or auto-retry. */
+    function retryListener() {
+      retryCount = 0;
+      startLiveListener();
+    }
+
+    /** Auto-retry the listener with exponential backoff (max 30 s). */
+    function scheduleRetry(err) {
+      const delay = Math.min(2000 * Math.pow(2, retryCount), 30000);
+      retryCount++;
+      let msg = `❌ Firestore error: <strong>${err.code || err.message}</strong>`;
+      if (err.code === 'permission-denied') {
+        msg += `<br><br>🔒 <strong>Rules are blocking reads.</strong> ` +
+          `Go to <a href="https://console.firebase.google.com/project/${window.__FB_PROJECT_ID__ || 'your-project'}/firestore/rules" ` +
+          `target="_blank" style="color:var(--indigo-lt);">Firebase → Firestore → Rules</a> and publish the correct rules.<br>` +
+          `<button onclick="copyRules()" class="btn btn-secondary" style="margin-top:8px;padding:8px 14px;font-size:0.82rem;">📋 Copy Rules to Clipboard</button>`;
+      } else if (err.code === 'failed-precondition') {
+        msg += `<br><br>📂 Missing Firestore index. Open the browser console — there should be a direct link to create the missing index.`;
+      } else {
+        msg += `<br><br>🔄 Retrying in ${Math.round(delay / 1000)}s… ` +
+          `<a href="#" onclick="retryListener();return false;" style="color:var(--indigo-lt);">Retry now</a>`;
+      }
+      showBanner('error', msg);
+      if (err.code !== 'permission-denied') {
+        retryTimer = setTimeout(startLiveListener, delay);
+      }
+    }
+
+    function showBanner(type, html) {
+      const el = document.getElementById('firebaseBanner');
+      const styles = {
+        ok:    'background:rgba(34,197,94,0.08);border-color:var(--green);color:var(--text)',
+        error: 'background:rgba(239,68,68,0.08);border-color:var(--red);color:var(--text)',
+        info:  'background:rgba(99,102,241,0.08);border-color:var(--indigo);color:var(--text-muted)',
+      };
+      el.setAttribute('style',
+        `display:block;padding:14px 18px;border-radius:12px;margin-bottom:20px;` +
+        `font-size:0.88rem;border:1px solid;line-height:1.7;${styles[type] || styles.info}`);
+      el.innerHTML = html;
+    }
+
+    function copyRules() {
+      const rules =
+`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /submissions/{submissionId} {
+      // Allow anyone to submit a quiz result
+      allow create: if true;
+      // Allow admin dashboard to read all results
+      allow read:   if true;
+      // Allow admin to delete submissions (Clear All button)
+      allow delete: if true;
+      // Prevent edits after submission
+      allow update: if false;
+    }
+  }
+}`;
+      navigator.clipboard.writeText(rules)
+        .then(()  => alert('✅ Rules copied! Paste in Firebase Console → Firestore → Rules → Publish.'))
+        .catch(()  => prompt('Copy these Firestore rules manually:', rules));
     }
 
     // ── Stats ──
@@ -268,7 +381,12 @@
       const all = currentSubmissions;
       const query = (document.getElementById('searchInput').value || '').toLowerCase();
       const filtered = query
-        ? all.filter(s => s.name.toLowerCase().includes(query) || s.email.toLowerCase().includes(query))
+        ? all.filter(s =>
+            (s.name  || '').toLowerCase().includes(query) ||
+            (s.email || '').toLowerCase().includes(query) ||
+            (s.uniqueid || '').toLowerCase().includes(query) ||
+            (s.school   || '').toLowerCase().includes(query) ||
+            (s.mobile   || '').includes(query))
         : all;
 
       const tbody = document.getElementById('tableBody');
@@ -292,6 +410,9 @@
         tr.innerHTML = `
           <td style="color:var(--text-muted);">${idx + 1}</td>
           <td style="font-weight:600;">${escHtml(s.name)}</td>
+          <td class="col-email" style="color:var(--text-muted);font-size:0.83rem;">${escHtml(s.uniqueid || '—')}</td>
+          <td class="col-email" style="color:var(--text-muted);font-size:0.83rem;">${escHtml(s.mobile || '—')}</td>
+          <td class="col-email" style="color:var(--text-muted);font-size:0.83rem;">${escHtml(s.school || '—')}</td>
           <td class="col-email" style="color:var(--text-muted);font-size:0.83rem;">${escHtml(s.email)}</td>
           <td class="score-cell">${s.score}/${s.total}</td>
           <td>${pct}%</td>
@@ -340,7 +461,12 @@
 
       document.getElementById('modalContent').innerHTML = `
         <h2 style="margin-bottom:4px;">${escHtml(s.name)}</h2>
-        <p style="margin-bottom:16px;">${escHtml(s.email)} · ${formatDate(s.submittedAt)}</p>
+        <p style="margin-bottom:4px;">${escHtml(s.email)} · ${formatDate(s.submittedAt)}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;font-size:0.83rem;color:var(--text-muted);">
+          ${s.uniqueid ? `<span>🆔 ID: <strong style="color:var(--text);">${escHtml(s.uniqueid)}</strong></span>` : ''}
+          ${s.mobile   ? `<span>📞 Mobile: <strong style="color:var(--text);">${escHtml(s.mobile)}</strong></span>` : ''}
+          ${s.school   ? `<span>🏫 School: <strong style="color:var(--text);">${escHtml(s.school)}</strong></span>` : ''}
+        </div>
         <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
           <div class="pill">📊 Score: <span>${s.score}/${s.total} (${pct}%)</span></div>
           <div class="pill">${s.passed ? '✅' : '❌'} <span>${s.passed ? 'Passed' : 'Failed'}</span></div>

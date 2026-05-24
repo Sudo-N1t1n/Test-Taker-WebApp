@@ -56,6 +56,24 @@
           <div>
             <div
               style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:4px;">
+              Unique ID</div>
+            <div style="font-weight:600;" id="summaryUniqueid">—</div>
+          </div>
+          <div>
+            <div
+              style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:4px;">
+              Mobile</div>
+            <div style="font-weight:600;" id="summaryMobile">—</div>
+          </div>
+          <div>
+            <div
+              style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:4px;">
+              School</div>
+            <div style="font-weight:600;" id="summarySchool">—</div>
+          </div>
+          <div>
+            <div
+              style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:4px;">
               Email</div>
             <div style="font-weight:600;word-break:break-all;" id="summaryEmail">—</div>
           </div>
@@ -170,9 +188,12 @@
         <div class="pill">📊 <span>${pct}%</span></div>`;
 
       // Summary
-      document.getElementById('summaryName').textContent = submission.name;
-      document.getElementById('summaryEmail').textContent = submission.email;
-      document.getElementById('summaryDate').textContent = formatDate(submission.submittedAt);
+      document.getElementById('summaryName').textContent     = submission.name;
+      document.getElementById('summaryUniqueid').textContent = submission.uniqueid || '—';
+      document.getElementById('summaryMobile').textContent   = submission.mobile   || '—';
+      document.getElementById('summarySchool').textContent   = submission.school   || '—';
+      document.getElementById('summaryEmail').textContent    = submission.email;
+      document.getElementById('summaryDate').textContent     = formatDate(submission.submittedAt);
       const mins = Math.floor(submission.timeTaken / 60);
       const secs = submission.timeTaken % 60;
       document.getElementById('summaryTime').textContent = `${mins}m ${secs}s`;
