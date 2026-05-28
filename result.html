@@ -213,9 +213,9 @@
         if (isCorrect) {
           answerInfo = `<span class="correct-text">Your answer: ${d.given} — Correct ✓</span>`;
         } else if (d.given) {
-          answerInfo = `<span class="wrong-text">Your answer: ${d.given} — Wrong</span> &nbsp;|&nbsp; Correct: <span class="correct-text">${d.correct}</span>`;
+          answerInfo = `<span class="wrong-text">Your answer: ${d.given} — Wrong</span>`;
         } else {
-          answerInfo = `<span class="wrong-text">Not answered</span> &nbsp;|&nbsp; Correct: <span class="correct-text">${d.correct}</span>`;
+          answerInfo = `<span class="wrong-text">Not answered</span>`;
         }
 
         item.innerHTML = `
@@ -223,7 +223,6 @@
           <div class="breakdown-body">
             <div class="breakdown-q">Q${q.id}. ${q.text}</div>
             <div class="breakdown-ans">${answerInfo}</div>
-            ${!isCorrect ? `<div class="breakdown-ans" style="margin-top:4px;color:var(--text-muted);font-size:0.77rem;">${d.correct}: ${q.options[d.correct]}</div>` : ''}
           </div>`;
         list.appendChild(item);
       });
