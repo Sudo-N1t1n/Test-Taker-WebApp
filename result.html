@@ -95,11 +95,7 @@
         </div>
       </div>
 
-      <!-- Breakdown -->
-      <div class="card fade-up fade-up-2">
-        <h2 style="margin-bottom:20px;">Answer Breakdown</h2>
-        <div id="breakdownList"></div>
-      </div>
+
 
       <div class="text-center mt-32">
         <a href="index.html" class="btn btn-primary">Take the Test Again →</a>
@@ -182,7 +178,7 @@
       document.getElementById('resultSubtitle').textContent =
         submission.passed
           ? `You scored ${submission.score}/25 (${pct}%) — above the pass mark.`
-          : `You scored ${submission.score}/25 (${pct}%). Pass mark is 10/25. Review your answers below.`;
+          : `You scored ${submission.score}/25 (${pct}%). Pass mark is 10/25.`;
 
       // Pills
       document.getElementById('resultPills').innerHTML = `
@@ -201,31 +197,7 @@
       const secs = submission.timeTaken % 60;
       document.getElementById('summaryTime').textContent = `${mins}m ${secs}s`;
 
-      // Breakdown
-      const list = document.getElementById('breakdownList');
-      submission.details.forEach((d, i) => {
-        const q = QUESTIONS[i];
-        const isCorrect = d.isCorrect;
-        const item = document.createElement('div');
-        item.className = 'breakdown-item scroll-reveal';
 
-        let answerInfo = '';
-        if (isCorrect) {
-          answerInfo = `<span class="correct-text">Your answer: ${d.given} — Correct ✓</span>`;
-        } else if (d.given) {
-          answerInfo = `<span class="wrong-text">Your answer: ${d.given} — Wrong</span>`;
-        } else {
-          answerInfo = `<span class="wrong-text">Not answered</span>`;
-        }
-
-        item.innerHTML = `
-          <div class="breakdown-icon ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✅' : '❌'}</div>
-          <div class="breakdown-body">
-            <div class="breakdown-q">Q${q.id}. ${q.text}</div>
-            <div class="breakdown-ans">${answerInfo}</div>
-          </div>`;
-        list.appendChild(item);
-      });
     }
   </script>
 </body>
