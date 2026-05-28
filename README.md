@@ -2,7 +2,7 @@
 
 A free, cloud-connected diagnostic pre-test web app for **Class 11 & 12 Physics Practical Skills**, designed for the Teacher Training Programme at **CM RISE Sabakheda**.
 
-> **Created by:** Mr. Dinesh Nagar — UMS Physics Teacher, CM RISE Sabakheda  
+> **Created by:** Dinesh Nagar — UMS Physics Teacher, CM RISE Sabakheda  
 > **Contact:** 📞 [9993355323](tel:9993355323) · ✉️ [Dineshnagar76@gmail.com](mailto:Dineshnagar76@gmail.com)
 
 ---
@@ -209,13 +209,13 @@ Responsive breakpoints: **400px · 640px · 768px**
 
 ## 📄 License
 
-This project is created and maintained by **Mr. Dinesh Nagar** for educational purposes at CM RISE Sabakheda. It is free to use for educational and non-commercial purposes.
+This project is created and maintained by **Dinesh Nagar** for educational purposes at CM RISE Sabakheda. It is free to use for educational and non-commercial purposes.
 
 ---
 
 ## 👨‍🏫 About the Creator
 
-**Mr. Dinesh Nagar**  
+**Dinesh Nagar**  
 UMS Physics Teacher — CM RISE Sabakheda  
 📞 [9993355323](tel:9993355323)  
 ✉️ [Dineshnagar76@gmail.com](mailto:Dineshnagar76@gmail.com)

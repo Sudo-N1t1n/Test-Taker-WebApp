@@ -144,7 +144,7 @@
         <div class="table-wrap">
           <table id="submissionsTable" style="display:none;">
             <thead>
-            <tr>
+              <tr>
                 <th>#</th>
                 <th>Name</th>
                 <th class="col-email">Unique ID</th>
@@ -174,7 +174,7 @@
     <footer class="site-footer">
       <div>⚗️ <strong>Physics For Fun</strong> — Admin Dashboard</div>
       <div style="margin-top:4px;">
-        Quiz by <strong>Mr. Dinesh Nagar</strong> &bull; UMS Physics Teacher, CM RISE Sabakheda &bull;
+        Quiz by <strong>Dinesh Nagar</strong> &bull; UMS Physics Teacher, CM RISE Sabakheda &bull;
         <a href="mailto:Dineshnagar76@gmail.com">Dineshnagar76@gmail.com</a>
       </div>
     </footer>
@@ -228,7 +228,7 @@
 
     function startLiveListener() {
       if (unsubscribe) { unsubscribe(); unsubscribe = null; }
-      if (retryTimer)  { clearTimeout(retryTimer); retryTimer = null; }
+      if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
 
       showBanner('info', '⏳ Connecting to Firestore…');
 
@@ -304,9 +304,9 @@
     function showBanner(type, html) {
       const el = document.getElementById('firebaseBanner');
       const styles = {
-        ok:    'background:rgba(34,197,94,0.08);border-color:var(--green);color:var(--text)',
+        ok: 'background:rgba(34,197,94,0.08);border-color:var(--green);color:var(--text)',
         error: 'background:rgba(239,68,68,0.08);border-color:var(--red);color:var(--text)',
-        info:  'background:rgba(99,102,241,0.08);border-color:var(--indigo);color:var(--text-muted)',
+        info: 'background:rgba(99,102,241,0.08);border-color:var(--indigo);color:var(--text-muted)',
       };
       el.setAttribute('style',
         `display:block;padding:14px 18px;border-radius:12px;margin-bottom:20px;` +
@@ -316,7 +316,7 @@
 
     function copyRules() {
       const rules =
-`rules_version = '2';
+        `rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /submissions/{submissionId} {
@@ -332,8 +332,8 @@ service cloud.firestore {
   }
 }`;
       navigator.clipboard.writeText(rules)
-        .then(()  => alert('✅ Rules copied! Paste in Firebase Console → Firestore → Rules → Publish.'))
-        .catch(()  => prompt('Copy these Firestore rules manually:', rules));
+        .then(() => alert('✅ Rules copied! Paste in Firebase Console → Firestore → Rules → Publish.'))
+        .catch(() => prompt('Copy these Firestore rules manually:', rules));
     }
 
     // ── Stats ──
@@ -393,11 +393,11 @@ service cloud.firestore {
       const query = (document.getElementById('searchInput').value || '').toLowerCase();
       const filtered = query
         ? all.filter(s =>
-            (s.name  || '').toLowerCase().includes(query) ||
-            (s.email || '').toLowerCase().includes(query) ||
-            (s.uniqueid || '').toLowerCase().includes(query) ||
-            (s.school   || '').toLowerCase().includes(query) ||
-            (s.mobile   || '').includes(query))
+          (s.name || '').toLowerCase().includes(query) ||
+          (s.email || '').toLowerCase().includes(query) ||
+          (s.uniqueid || '').toLowerCase().includes(query) ||
+          (s.school || '').toLowerCase().includes(query) ||
+          (s.mobile || '').includes(query))
         : all;
 
       const tbody = document.getElementById('tableBody');
@@ -475,8 +475,8 @@ service cloud.firestore {
         <p style="margin-bottom:4px;">${escHtml(s.email)} · ${formatDate(s.submittedAt)}</p>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;font-size:0.83rem;color:var(--text-muted);">
           ${s.uniqueid ? `<span>🆔 ID: <strong style="color:var(--text);">${escHtml(s.uniqueid)}</strong></span>` : ''}
-          ${s.mobile   ? `<span>📞 Mobile: <strong style="color:var(--text);">${escHtml(s.mobile)}</strong></span>` : ''}
-          ${s.school   ? `<span>🏫 School: <strong style="color:var(--text);">${escHtml(s.school)}</strong></span>` : ''}
+          ${s.mobile ? `<span>📞 Mobile: <strong style="color:var(--text);">${escHtml(s.mobile)}</strong></span>` : ''}
+          ${s.school ? `<span>🏫 School: <strong style="color:var(--text);">${escHtml(s.school)}</strong></span>` : ''}
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
           <div class="pill">📊 Score: <span>${s.score}/${s.total} (${pct}%)</span></div>
