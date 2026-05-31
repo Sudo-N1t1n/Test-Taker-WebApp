@@ -5,13 +5,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard</title>
-  <meta name="description" content="Admin-only results dashboard for the Physics For Fun Pre-Test." />
+  <meta name="description" content="Admin-only results dashboard for the Physics For Fun Pre-Test & Post-Test." />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚗️</text></svg>" />
-  <link rel="stylesheet" href="css/style.css?v=1.1" />
+  <link rel="stylesheet" href="css/style.css?v=2.0" />
   <style>
     .loading-shimmer {
       background: linear-gradient(90deg, var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%);
@@ -20,24 +20,115 @@
       border-radius: 6px;
       height: 48px;
     }
-
     @keyframes shimmer {
-      from {
-        background-position: 200% 0;
-      }
-
-      to {
-        background-position: -200% 0;
-      }
+      from { background-position: 200% 0; }
+      to { background-position: -200% 0; }
+    }
+    @media (max-width: 520px) {
+      .col-email, .col-time { display: none; }
     }
 
-    /* Hide some table columns on small phones */
-    @media (max-width: 520px) {
+    /* ── Tab System ── */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 4px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 0;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+      text-align: center;
+    }
+    .tab-btn:hover {
+      color: var(--text);
+      background: rgba(16,185,129,0.06);
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--indigo), var(--indigo-dk));
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(16,185,129,0.3);
+    }
+    .tab-panel {
+      display: none;
+      animation: fadeUp 0.35s ease both;
+    }
+    .tab-panel.active {
+      display: block;
+    }
 
-      .col-email,
-      .col-time {
-        display: none;
-      }
+    /* ── Comparison chart styles ── */
+    .cmp-chart-container {
+      display: flex; align-items: flex-end; gap: 3px;
+      height: 200px;
+      background: rgba(15,23,42,0.5);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px 8px 0;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin; scrollbar-color: var(--bg3) transparent;
+    }
+    .cmp-chart-container::-webkit-scrollbar { height: 4px; }
+    .cmp-chart-container::-webkit-scrollbar-track { background: transparent; }
+    .cmp-chart-container::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+    .cmp-bar-group {
+      flex-shrink: 0; min-width: 36px;
+      display: flex; flex-direction: column; align-items: center;
+      height: 100%; justify-content: flex-end; gap: 2px;
+    }
+    .cmp-bars {
+      display: flex; gap: 2px; align-items: flex-end; width: 100%;
+    }
+    .cmp-bar {
+      flex: 1; border-radius: 3px 3px 0 0; min-height: 3px;
+      transition: height 0.6s cubic-bezier(.34,1.56,.64,1);
+    }
+    .cmp-bar.pre { background: rgba(148,163,184,0.5); }
+    .cmp-bar.post { background: linear-gradient(180deg, var(--indigo-lt), var(--indigo-dk)); }
+    .cmp-bar-label { font-size: 0.55rem; color: var(--text-muted); white-space: nowrap; }
+    .cmp-legend {
+      display: flex; gap: 16px; font-size: 0.8rem; margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .cmp-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .cmp-legend-dot {
+      width: 10px; height: 10px; border-radius: 3px; display: inline-block;
+    }
+    .cmp-summary-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px; margin-top: 20px;
+    }
+    .cmp-summary-card {
+      background: rgba(15,23,42,0.5);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px; text-align: center;
+    }
+    .cmp-summary-label {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--text-muted); margin-bottom: 6px;
+    }
+    .cmp-summary-value {
+      font-size: 1.4rem; font-weight: 800; line-height: 1;
+    }
+
+    @media (max-width: 640px) {
+      .tab-btn { padding: 10px 12px; font-size: 0.82rem; }
     }
   </style>
 </head>
@@ -76,10 +167,6 @@
           <span class="live-dot"></span>Live
         </span>
         <a href="index.html" class="nav-link">← Test</a>
-        <button class="btn btn-danger" style="padding:8px 14px;font-size:0.82rem;" id="clearBtn"
-          onclick="clearAllData()">
-          🗑️ Clear
-        </button>
         <button class="btn btn-secondary" style="padding:8px 14px;font-size:0.82rem;" onclick="logoutAdmin()">
           🚪 Logout
         </button>
@@ -96,76 +183,186 @@
       <div id="firebaseBanner" style="display:none;padding:14px 18px;border-radius:12px;
            margin-bottom:20px;font-size:0.88rem;border:1px solid;"></div>
 
-      <!-- Stat cards -->
-      <div class="stat-grid fade-up">
-        <div class="stat-card">
-          <div class="stat-label">Total Submissions</div>
-          <div class="stat-value cyan" id="statTotal">—</div>
+      <!-- ═══════════ TAB BAR ═══════════ -->
+      <div class="tab-bar" id="tabBar">
+        <button class="tab-btn active" data-tab="pretest" onclick="switchTab('pretest')">📋 Pre-Test</button>
+        <button class="tab-btn" data-tab="posttest" onclick="switchTab('posttest')">📝 Post-Test</button>
+        <button class="tab-btn" data-tab="comparison" onclick="switchTab('comparison')">📊 Comparison</button>
+      </div>
+
+      <!-- ═══════════ TAB: PRE-TEST ═══════════ -->
+      <div class="tab-panel active" id="tab-pretest">
+
+        <div class="stat-grid fade-up">
+          <div class="stat-card">
+            <div class="stat-label">Total Submissions</div>
+            <div class="stat-value cyan" id="statTotalPre">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Average Score</div>
+            <div class="stat-value amber" id="statAvgPre">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Highest Score</div>
+            <div class="stat-value green" id="statHighPre">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pass Rate</div>
+            <div class="stat-value" id="statPassPre">—</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Average Score</div>
-          <div class="stat-value amber" id="statAvg">—</div>
+
+        <!-- Pre-Test Chart -->
+        <div class="card fade-up fade-up-1 chart-section">
+          <h3>Per-Question Correct %
+            <span style="font-size:0.73rem;font-weight:400;color:var(--text-muted);">— scroll to see all 25</span>
+          </h3>
+          <p style="font-size:0.8rem;margin-top:2px;margin-bottom:14px;">
+            <span style="color:var(--green);">■</span> ≥70%&nbsp;
+            <span style="color:var(--amber);">■</span> 40–69%&nbsp;
+            <span style="color:var(--red);">■</span> &lt;40%
+          </p>
+          <div class="chart-bars" id="chartBarsPre">
+            <div style="color:var(--text-muted);font-size:0.85rem;padding:16px;">Waiting for submissions…</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Highest Score</div>
-          <div class="stat-value green" id="statHigh">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Pass Rate</div>
-          <div class="stat-value" id="statPass">—</div>
+
+        <!-- Pre-Test Table -->
+        <div class="fade-up fade-up-2">
+          <div class="flex items-center justify-between mb-16" style="flex-wrap:wrap;gap:12px;">
+            <h3 id="tableHeadingPre">Pre-Test Submissions</h3>
+            <input type="text" id="searchInputPre" placeholder="🔍 Search…" style="background:var(--bg2);border:1px solid var(--border);border-radius:50px;
+                     padding:9px 18px;color:var(--text);font-family:inherit;font-size:0.86rem;
+                     outline:none;width:100%;max-width:280px;transition:border-color 0.2s;"
+              oninput="renderPreTableFromCache()" onfocus="this.style.borderColor='var(--indigo)'"
+              onblur="this.style.borderColor='var(--border)'" />
+          </div>
+          <div class="table-wrap">
+            <table id="preTable" style="display:none;">
+              <thead>
+                <tr>
+                  <th>#</th><th>Name</th>
+                  <th class="col-email">Unique ID</th><th class="col-email">Mobile</th>
+                  <th class="col-email">School</th><th class="col-email">Email</th>
+                  <th>Score</th><th>%</th><th>Result</th>
+                  <th class="col-time">Time</th><th>Submitted</th><th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="preTableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="emptyStatePre" style="display:none;">
+            <div class="empty-icon">📭</div>
+            <h3>No pre-test submissions yet</h3>
+            <p style="margin-top:6px;">Pre-test submissions will appear here.</p>
+          </div>
+          <div style="text-align:right;margin-top:10px;">
+            <button class="btn btn-danger" style="padding:8px 14px;font-size:0.78rem;" id="clearPreBtn" onclick="clearPreData()">🗑️ Clear Pre-Test Data</button>
+          </div>
         </div>
       </div>
 
-      <!-- Chart -->
-      <div class="card fade-up fade-up-1 chart-section">
-        <h3>Per-Question Correct %
-          <span style="font-size:0.73rem;font-weight:400;color:var(--text-muted);">— live, scroll to see all 25</span>
-        </h3>
-        <p style="font-size:0.8rem;margin-top:2px;margin-bottom:14px;">
-          <span style="color:var(--green);">■</span> ≥70%&nbsp;
-          <span style="color:var(--amber);">■</span> 40–69%&nbsp;
-          <span style="color:var(--red);">■</span> &lt;40%
-        </p>
-        <div class="chart-bars" id="chartBars">
-          <div style="color:var(--text-muted);font-size:0.85rem;padding:16px;">Waiting for submissions…</div>
+      <!-- ═══════════ TAB: POST-TEST ═══════════ -->
+      <div class="tab-panel" id="tab-posttest">
+
+        <div class="stat-grid fade-up">
+          <div class="stat-card">
+            <div class="stat-label">Total Submissions</div>
+            <div class="stat-value cyan" id="statTotalPost">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Average Score</div>
+            <div class="stat-value amber" id="statAvgPost">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Highest Score</div>
+            <div class="stat-value green" id="statHighPost">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pass Rate</div>
+            <div class="stat-value" id="statPassPost">—</div>
+          </div>
+        </div>
+
+        <!-- Post-Test Chart -->
+        <div class="card fade-up fade-up-1 chart-section">
+          <h3>Per-Question Correct %
+            <span style="font-size:0.73rem;font-weight:400;color:var(--text-muted);">— scroll to see all 25</span>
+          </h3>
+          <p style="font-size:0.8rem;margin-top:2px;margin-bottom:14px;">
+            <span style="color:var(--green);">■</span> ≥70%&nbsp;
+            <span style="color:var(--amber);">■</span> 40–69%&nbsp;
+            <span style="color:var(--red);">■</span> &lt;40%
+          </p>
+          <div class="chart-bars" id="chartBarsPost">
+            <div style="color:var(--text-muted);font-size:0.85rem;padding:16px;">Waiting for submissions…</div>
+          </div>
+        </div>
+
+        <!-- Post-Test Table -->
+        <div class="fade-up fade-up-2">
+          <div class="flex items-center justify-between mb-16" style="flex-wrap:wrap;gap:12px;">
+            <h3 id="tableHeadingPost">Post-Test Submissions</h3>
+            <input type="text" id="searchInputPost" placeholder="🔍 Search…" style="background:var(--bg2);border:1px solid var(--border);border-radius:50px;
+                     padding:9px 18px;color:var(--text);font-family:inherit;font-size:0.86rem;
+                     outline:none;width:100%;max-width:280px;transition:border-color 0.2s;"
+              oninput="renderPostTableFromCache()" onfocus="this.style.borderColor='var(--indigo)'"
+              onblur="this.style.borderColor='var(--border)'" />
+          </div>
+          <div class="table-wrap">
+            <table id="postTable" style="display:none;">
+              <thead>
+                <tr>
+                  <th>#</th><th>Name</th>
+                  <th class="col-email">Unique ID</th><th class="col-email">Mobile</th>
+                  <th class="col-email">School</th><th class="col-email">Email</th>
+                  <th>Score</th><th>%</th><th>Result</th>
+                  <th class="col-time">Time</th><th>Submitted</th><th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="postTableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="emptyStatePost" style="display:none;">
+            <div class="empty-icon">📭</div>
+            <h3>No post-test submissions yet</h3>
+            <p style="margin-top:6px;">Post-test submissions will appear here in real-time.</p>
+          </div>
+          <div style="text-align:right;margin-top:10px;">
+            <button class="btn btn-danger" style="padding:8px 14px;font-size:0.78rem;" id="clearPostBtn" onclick="clearPostData()">🗑️ Clear Post-Test Data</button>
+          </div>
         </div>
       </div>
 
-      <!-- Table -->
-      <div class="fade-up fade-up-2">
-        <div class="flex items-center justify-between mb-16" style="flex-wrap:wrap;gap:12px;">
-          <h3 id="tableHeading">All Submissions</h3>
-          <input type="text" id="searchInput" placeholder="🔍 Search by name or email…" style="background:var(--bg2);border:1px solid var(--border);border-radius:50px;
-                   padding:9px 18px;color:var(--text);font-family:inherit;font-size:0.86rem;
-                   outline:none;width:100%;max-width:280px;transition:border-color 0.2s;"
-            oninput="renderTableFromCache()" onfocus="this.style.borderColor='var(--indigo)'"
-            onblur="this.style.borderColor='var(--border)'" />
+      <!-- ═══════════ TAB: COMPARISON ═══════════ -->
+      <div class="tab-panel" id="tab-comparison">
+
+        <!-- Side-by-side summary stats -->
+        <div class="stat-grid fade-up" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="stat-card" style="border-top:3px solid var(--text-muted);">
+            <div class="stat-label">Pre-Test Avg Score</div>
+            <div class="stat-value" style="color:var(--text-muted);" id="cmpAvgPre">—</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid var(--indigo-lt);">
+            <div class="stat-label">Post-Test Avg Score</div>
+            <div class="stat-value" style="color:var(--indigo-lt);" id="cmpAvgPost">—</div>
+          </div>
         </div>
-        <div class="table-wrap">
-          <table id="submissionsTable" style="display:none;">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th class="col-email">Unique ID</th>
-                <th class="col-email">Mobile</th>
-                <th class="col-email">School</th>
-                <th class="col-email">Email</th>
-                <th>Score</th>
-                <th>%</th>
-                <th>Result</th>
-                <th class="col-time">Time</th>
-                <th>Submitted</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-          </table>
-        </div>
-        <div class="empty-state" id="emptyState" style="display:none;">
-          <div class="empty-icon">📭</div>
-          <h3>No submissions yet</h3>
-          <p style="margin-top:6px;">Submissions appear here in real-time as students complete the quiz.</p>
+
+        <!-- Comparison chart -->
+        <div class="card fade-up fade-up-1" style="margin-bottom:20px;">
+          <h3 style="margin-bottom:4px;">Per-Question Comparison</h3>
+          <p style="font-size:0.8rem;margin-bottom:14px;color:var(--text-muted);">
+            Side-by-side correct % for each question across both tests.
+          </p>
+          <div class="cmp-legend">
+            <span><span class="cmp-legend-dot" style="background:rgba(148,163,184,0.5);"></span> Pre-Test</span>
+            <span><span class="cmp-legend-dot" style="background:var(--indigo-lt);"></span> Post-Test</span>
+          </div>
+          <div class="cmp-chart-container" id="cmpChart">
+            <div style="color:var(--text-muted);font-size:0.85rem;padding:16px;">Waiting for data…</div>
+          </div>
+          <div class="cmp-summary-grid" id="cmpSummary"></div>
         </div>
       </div>
 
@@ -190,9 +387,21 @@
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="js/firebase-config.js?v=1.1"></script>
-  <script src="js/app.js?v=1.1"></script>
+  <script src="js/firebase-config.js?v=2.0"></script>
+  <script src="js/app.js?v=2.0"></script>
   <script>
+    // ── Tab Switching ──
+    function switchTab(tabId) {
+      // Deactivate all
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      // Activate selected
+      document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+      // Re-render comparison when switching to it (ensures chart draws at correct size)
+      if (tabId === 'comparison') renderComparisonChart();
+    }
+
     // ── Auth ──
     if (sessionStorage.getItem('admin_auth') === 'true') showDashboard();
 
@@ -212,7 +421,7 @@
     function showDashboard() {
       document.getElementById('gateView').style.display = 'none';
       document.getElementById('dashboardView').style.display = 'block';
-      startLiveListener();
+      startLiveListeners();
     }
 
     function logoutAdmin() {
@@ -220,51 +429,72 @@
       window.location.reload();
     }
 
-    // ── Real-time listener ──
-    let currentSubmissions = [];
-    let unsubscribe = null;
+    // ── Real-time listeners ──
+    let preSubmissions = [];
+    let postSubmissions = [];
+    let unsubPre = null;
+    let unsubPost = null;
     let retryTimer = null;
     let retryCount = 0;
 
-    function startLiveListener() {
-      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    function startLiveListeners() {
+      if (unsubPre) { unsubPre(); unsubPre = null; }
+      if (unsubPost) { unsubPost(); unsubPost = null; }
       if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
 
       showBanner('info', '⏳ Connecting to Firestore…');
 
-      // ✔ NO orderBy here — avoids index-related listener crashes on new writes.
-      //    We sort client-side instead (see sortSubmissions below).
-      unsubscribe = window.db
-        .collection(CONFIG.firestoreCollection)
+      // Pre-test listener
+      unsubPre = window.db.collection(CONFIG.firestoreCollection)
         .onSnapshot(
           { includeMetadataChanges: false },
           (snapshot) => {
             try {
-              retryCount = 0;   // reset on success
-              const submissions = sortSubmissions(snapshot.docs.map(d => d.data()));
-              currentSubmissions = submissions;
-              renderStats(submissions);
-              renderChart(submissions);
-              renderTableFromCache();
-              showBanner('ok',
-                `✅ Live — <strong>${submissions.length}</strong> submission(s) in <code>${CONFIG.firestoreCollection}</code>` +
-                ` · <a href="#" onclick="retryListener();return false;" style="color:inherit;">Refresh</a>`);
-            } catch (renderErr) {
-              console.error('Render error in snapshot callback:', renderErr);
-              showBanner('error',
-                `⚠️ Render error — ${renderErr.message}. ` +
-                `<a href="#" onclick="retryListener();return false;" style="color:var(--indigo-lt);">Retry</a>`);
+              preSubmissions = sortSubmissions(snapshot.docs.map(d => d.data()));
+              renderPreStats(preSubmissions);
+              renderChart(preSubmissions, 'chartBarsPre');
+              renderPreTableFromCache();
+              // Update comparison tab data if it's visible
+              if (document.getElementById('tab-comparison').classList.contains('active')) {
+                renderComparisonChart();
+              }
+              updateBanner();
+            } catch (e) {
+              console.error('Pre-test render error:', e);
             }
           },
-          (err) => {
-            console.error('Firestore snapshot error:', err);
-            // Listener is now dead — schedule an auto-retry with backoff
-            scheduleRetry(err);
-          }
+          (err) => { console.error('Pre-test snapshot error:', err); scheduleRetry(err); }
+        );
+
+      // Post-test listener
+      unsubPost = window.db.collection(CONFIG.firestoreCollectionPost)
+        .onSnapshot(
+          { includeMetadataChanges: false },
+          (snapshot) => {
+            try {
+              retryCount = 0;
+              postSubmissions = sortSubmissions(snapshot.docs.map(d => d.data()));
+              renderPostStats(postSubmissions);
+              renderChart(postSubmissions, 'chartBarsPost');
+              renderPostTableFromCache();
+              if (document.getElementById('tab-comparison').classList.contains('active')) {
+                renderComparisonChart();
+              }
+              updateBanner();
+            } catch (e) {
+              console.error('Post-test render error:', e);
+            }
+          },
+          (err) => { console.error('Post-test snapshot error:', err); scheduleRetry(err); }
         );
     }
 
-    /** Sort newest-first client-side (avoids requiring a Firestore orderBy index). */
+    function updateBanner() {
+      showBanner('ok',
+        `✅ Live — <strong>${preSubmissions.length}</strong> pre-test, <strong>${postSubmissions.length}</strong> post-test submissions` +
+        ` · <a href="#" onclick="retryListener();return false;" style="color:inherit;">Refresh</a>`);
+    }
+
     function sortSubmissions(arr) {
       return arr.slice().sort((a, b) => {
         const ta = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
@@ -273,13 +503,8 @@
       });
     }
 
-    /** Called by Refresh button or auto-retry. */
-    function retryListener() {
-      retryCount = 0;
-      startLiveListener();
-    }
+    function retryListener() { retryCount = 0; startLiveListeners(); }
 
-    /** Auto-retry the listener with exponential backoff (max 30 s). */
     function scheduleRetry(err) {
       const delay = Math.min(2000 * Math.pow(2, retryCount), 30000);
       retryCount++;
@@ -289,15 +514,13 @@
           `Go to <a href="https://console.firebase.google.com/project/${window.__FB_PROJECT_ID__ || 'your-project'}/firestore/rules" ` +
           `target="_blank" style="color:var(--indigo-lt);">Firebase → Firestore → Rules</a> and publish the correct rules.<br>` +
           `<button onclick="copyRules()" class="btn btn-secondary" style="margin-top:8px;padding:8px 14px;font-size:0.82rem;">📋 Copy Rules to Clipboard</button>`;
-      } else if (err.code === 'failed-precondition') {
-        msg += `<br><br>📂 Missing Firestore index. Open the browser console — there should be a direct link to create the missing index.`;
       } else {
         msg += `<br><br>🔄 Retrying in ${Math.round(delay / 1000)}s… ` +
           `<a href="#" onclick="retryListener();return false;" style="color:var(--indigo-lt);">Retry now</a>`;
       }
       showBanner('error', msg);
       if (err.code !== 'permission-denied') {
-        retryTimer = setTimeout(startLiveListener, delay);
+        retryTimer = setTimeout(startLiveListeners, delay);
       }
     }
 
@@ -306,7 +529,7 @@
       const styles = {
         ok: 'background:rgba(34,197,94,0.08);border-color:var(--green);color:var(--text)',
         error: 'background:rgba(239,68,68,0.08);border-color:var(--red);color:var(--text)',
-        info: 'background:rgba(99,102,241,0.08);border-color:var(--indigo);color:var(--text-muted)',
+        info: 'background:rgba(16,185,129,0.08);border-color:var(--indigo);color:var(--text-muted)',
       };
       el.setAttribute('style',
         `display:block;padding:14px 18px;border-radius:12px;margin-bottom:20px;` +
@@ -320,13 +543,15 @@
 service cloud.firestore {
   match /databases/{database}/documents {
     match /submissions/{submissionId} {
-      // Allow anyone to submit a quiz result
       allow create: if true;
-      // Allow admin dashboard to read all results
       allow read:   if true;
-      // Allow admin to delete submissions (Clear All button)
       allow delete: if true;
-      // Prevent edits after submission
+      allow update: if false;
+    }
+    match /submissions_post/{submissionId} {
+      allow create: if true;
+      allow read:   if true;
+      allow delete: if true;
       allow update: if false;
     }
   }
@@ -336,30 +561,32 @@ service cloud.firestore {
         .catch(() => prompt('Copy these Firestore rules manually:', rules));
     }
 
-    // ── Stats ──
-    function renderStats(submissions) {
+    // ── Stats (generic) ──
+    function renderStatsGeneric(submissions, prefix) {
       const total = submissions.length;
-      document.getElementById('statTotal').textContent = total;
+      document.getElementById(`statTotal${prefix}`).textContent = total;
       if (total === 0) {
-        ['statAvg', 'statHigh', 'statPass'].forEach(id => document.getElementById(id).textContent = '—');
-        document.getElementById('statPass').className = 'stat-value';
+        [`statAvg${prefix}`, `statHigh${prefix}`, `statPass${prefix}`].forEach(id => document.getElementById(id).textContent = '—');
+        document.getElementById(`statPass${prefix}`).className = 'stat-value';
       } else {
         const scores = submissions.map(s => s.score);
         const avg = scores.reduce((a, b) => a + b, 0) / total;
         const high = Math.max(...scores);
         const passCount = submissions.filter(s => s.passed).length;
         const passRate = Math.round((passCount / total) * 100);
-        document.getElementById('statAvg').textContent = avg.toFixed(1) + '/25';
-        document.getElementById('statHigh').textContent = high + '/25';
-        const passEl = document.getElementById('statPass');
+        document.getElementById(`statAvg${prefix}`).textContent = avg.toFixed(1) + '/25';
+        document.getElementById(`statHigh${prefix}`).textContent = high + '/25';
+        const passEl = document.getElementById(`statPass${prefix}`);
         passEl.textContent = passRate + '%';
         passEl.className = 'stat-value ' + (passRate >= 60 ? 'green' : 'red');
       }
     }
+    function renderPreStats(s) { renderStatsGeneric(s, 'Pre'); }
+    function renderPostStats(s) { renderStatsGeneric(s, 'Post'); }
 
-    // ── Chart ──
-    function renderChart(submissions) {
-      const chartEl = document.getElementById('chartBars');
+    // ── Per-question chart (reusable) ──
+    function renderChart(submissions, containerId) {
+      const chartEl = document.getElementById(containerId);
       chartEl.innerHTML = '';
       if (submissions.length === 0) {
         chartEl.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;padding:16px;">Waiting for submissions…</div>';
@@ -387,10 +614,83 @@ service cloud.firestore {
       });
     }
 
-    // ── Table ──
-    function renderTableFromCache() {
-      const all = currentSubmissions;
-      const query = (document.getElementById('searchInput').value || '').toLowerCase();
+    // ── Comparison chart ──
+    function renderComparisonChart() {
+      const chartEl = document.getElementById('cmpChart');
+      const summaryEl = document.getElementById('cmpSummary');
+      chartEl.innerHTML = '';
+      summaryEl.innerHTML = '';
+
+      // Update top-level comparison stat cards
+      const avgPre = preSubmissions.length ? (preSubmissions.reduce((a,s) => a + s.score, 0) / preSubmissions.length) : 0;
+      const avgPost = postSubmissions.length ? (postSubmissions.reduce((a,s) => a + s.score, 0) / postSubmissions.length) : 0;
+      document.getElementById('cmpAvgPre').textContent = preSubmissions.length ? avgPre.toFixed(1) + '/25' : '—';
+      document.getElementById('cmpAvgPost').textContent = postSubmissions.length ? avgPost.toFixed(1) + '/25' : '—';
+
+      if (preSubmissions.length === 0 && postSubmissions.length === 0) {
+        chartEl.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;padding:16px;">Waiting for data from both tests…</div>';
+        return;
+      }
+
+      const totalPre = preSubmissions.length || 1;
+      const totalPost = postSubmissions.length || 1;
+      const preCounts = new Array(25).fill(0);
+      const postCounts = new Array(25).fill(0);
+      preSubmissions.forEach(s => (s.details || []).forEach((d, i) => { if (d.isCorrect) preCounts[i]++; }));
+      postSubmissions.forEach(s => (s.details || []).forEach((d, i) => { if (d.isCorrect) postCounts[i]++; }));
+
+      const maxPct = Math.max(
+        ...preCounts.map(c => Math.round((c / totalPre) * 100)),
+        ...postCounts.map(c => Math.round((c / totalPost) * 100)),
+        1
+      );
+
+      for (let i = 0; i < 25; i++) {
+        const prePct = preSubmissions.length ? Math.round((preCounts[i] / totalPre) * 100) : 0;
+        const postPct = postSubmissions.length ? Math.round((postCounts[i] / totalPost) * 100) : 0;
+        const preH = Math.max(3, Math.round((prePct / maxPct) * 160));
+        const postH = Math.max(3, Math.round((postPct / maxPct) * 160));
+
+        const group = document.createElement('div');
+        group.className = 'cmp-bar-group';
+        group.title = `Q${i+1}: Pre ${prePct}% | Post ${postPct}%`;
+        group.innerHTML = `
+          <div class="cmp-bars">
+            <div class="cmp-bar pre" style="height:${preH}px;"></div>
+            <div class="cmp-bar post" style="height:${postH}px;"></div>
+          </div>
+          <div class="cmp-bar-label">Q${i+1}</div>`;
+        chartEl.appendChild(group);
+      }
+
+      // Summary stats
+      const passRatePre = preSubmissions.length ? Math.round((preSubmissions.filter(s=>s.passed).length / preSubmissions.length)*100) : 0;
+      const passRatePost = postSubmissions.length ? Math.round((postSubmissions.filter(s=>s.passed).length / postSubmissions.length)*100) : 0;
+      const avgDiff = (avgPost - avgPre).toFixed(1);
+      const passDiff = passRatePost - passRatePre;
+
+      summaryEl.innerHTML = `
+        <div class="cmp-summary-card">
+          <div class="cmp-summary-label">Pre-Test Avg</div>
+          <div class="cmp-summary-value" style="color:var(--text-muted);">${avgPre.toFixed(1)}/25</div>
+        </div>
+        <div class="cmp-summary-card">
+          <div class="cmp-summary-label">Post-Test Avg</div>
+          <div class="cmp-summary-value" style="color:var(--indigo-lt);">${avgPost.toFixed(1)}/25</div>
+        </div>
+        <div class="cmp-summary-card">
+          <div class="cmp-summary-label">Score Change</div>
+          <div class="cmp-summary-value" style="color:${avgDiff >= 0 ? 'var(--green)' : 'var(--red)'};">${avgDiff >= 0 ? '+' : ''}${avgDiff}</div>
+        </div>
+        <div class="cmp-summary-card">
+          <div class="cmp-summary-label">Pass Rate Change</div>
+          <div class="cmp-summary-value" style="color:${passDiff >= 0 ? 'var(--green)' : 'var(--red)'};">${passDiff >= 0 ? '+' : ''}${passDiff}%</div>
+        </div>`;
+    }
+
+    // ── Table rendering (generic) ──
+    function renderTableGeneric(all, searchId, headingId, tableId, tbodyId, emptyId, isPostTest) {
+      const query = (document.getElementById(searchId).value || '').toLowerCase();
       const filtered = query
         ? all.filter(s =>
           (s.name || '').toLowerCase().includes(query) ||
@@ -400,12 +700,13 @@ service cloud.firestore {
           (s.mobile || '').includes(query))
         : all;
 
-      const tbody = document.getElementById('tableBody');
-      const table = document.getElementById('submissionsTable');
-      const empty = document.getElementById('emptyState');
+      const tbody = document.getElementById(tbodyId);
+      const table = document.getElementById(tableId);
+      const empty = document.getElementById(emptyId);
+      const label = isPostTest ? 'Post-Test' : 'Pre-Test';
 
-      document.getElementById('tableHeading').textContent =
-        query ? `Results for "${query}" (${filtered.length})` : `All Submissions (${all.length})`;
+      document.getElementById(headingId).textContent =
+        query ? `${label} results for "${query}" (${filtered.length})` : `${label} Submissions (${all.length})`;
 
       tbody.innerHTML = '';
 
@@ -417,6 +718,7 @@ service cloud.firestore {
         const pct = Math.round((s.score / s.total) * 100);
         const mins = Math.floor(s.timeTaken / 60);
         const secs = s.timeTaken % 60;
+        const collection = isPostTest ? 'post' : 'pre';
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td style="color:var(--text-muted);">${idx + 1}</td>
@@ -432,7 +734,7 @@ service cloud.firestore {
           <td style="font-size:0.8rem;color:var(--text-muted);">${formatDate(s.submittedAt)}</td>
           <td>
             <div style="display:flex;gap:6px;">
-              <button class="btn btn-secondary" style="padding:6px 12px;font-size:0.78rem;" onclick="openDetail('${escHtml(s.id)}')">
+              <button class="btn btn-secondary" style="padding:6px 12px;font-size:0.78rem;" onclick="openDetail('${escHtml(s.id)}','${collection}')">
                 View
               </button>
               <a href="result.html?id=${escHtml(s.id)}" target="_blank" class="btn btn-secondary" style="padding:6px 12px;font-size:0.78rem;text-decoration:none;">
@@ -444,23 +746,33 @@ service cloud.firestore {
       });
     }
 
+    function renderPreTableFromCache() {
+      renderTableGeneric(preSubmissions, 'searchInputPre', 'tableHeadingPre', 'preTable', 'preTableBody', 'emptyStatePre', false);
+    }
+    function renderPostTableFromCache() {
+      renderTableGeneric(postSubmissions, 'searchInputPost', 'tableHeadingPost', 'postTable', 'postTableBody', 'emptyStatePost', true);
+    }
+
     function escHtml(str) {
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     // ── Detail modal ──
-    function openDetail(id) {
-      const s = currentSubmissions.find(sub => sub.id === id);
+    function openDetail(id, collection) {
+      const list = collection === 'post' ? postSubmissions : preSubmissions;
+      const s = list.find(sub => sub.id === id);
       if (!s) return;
       const pct = Math.round((s.score / s.total) * 100);
       const mins = Math.floor(s.timeTaken / 60);
       const secs = s.timeTaken % 60;
+      const label = collection === 'post' ? 'Post-Test' : 'Pre-Test';
+      const labelColor = collection === 'post' ? 'color:var(--indigo-lt)' : 'color:var(--text-muted)';
       const breakdownHTML = (s.details || []).map((d, i) => {
         const q = QUESTIONS[i], ic = d.isCorrect;
         let info = ic
-          ? `<span style="color:var(--green);font-weight:600;">Your answer: ${d.given} — Correct ✓</span>`
+          ? `<span style="color:var(--green);font-weight:600;">Answer: ${d.given} — Correct ✓</span>`
           : d.given
-            ? `<span style="color:var(--red);font-weight:600;">Your answer: ${d.given} — Wrong</span> | Correct: <span style="color:var(--green);font-weight:600;">${d.correct}</span>`
+            ? `<span style="color:var(--red);font-weight:600;">Answer: ${d.given} — Wrong</span> | Correct: <span style="color:var(--green);font-weight:600;">${d.correct}</span>`
             : `<span style="color:var(--red);">Not answered</span> | Correct: <span style="color:var(--green);font-weight:600;">${d.correct}</span>`;
         return `<div class="breakdown-item">
           <div class="breakdown-icon ${ic ? 'correct' : 'wrong'}">${ic ? '✅' : '❌'}</div>
@@ -471,6 +783,7 @@ service cloud.firestore {
       }).join('');
 
       document.getElementById('modalContent').innerHTML = `
+        <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:50px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:12px;${labelColor};background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);">${label}</div>
         <h2 style="margin-bottom:4px;">${escHtml(s.name)}</h2>
         <p style="margin-bottom:4px;">${escHtml(s.email)} · ${formatDate(s.submittedAt)}</p>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;font-size:0.83rem;color:var(--text-muted);">
@@ -497,22 +810,31 @@ service cloud.firestore {
       if (e.target === document.getElementById('detailModal')) closeDetail();
     });
 
-    // ── Clear all ──
-    async function clearAllData() {
-      const total = currentSubmissions.length;
-      if (total === 0) { alert('No data to clear.'); return; }
-      if (!confirm(`⚠️ Permanently delete all ${total} submission(s)?`)) return;
-      const btn = document.getElementById('clearBtn');
+    // ── Clear data ──
+    async function clearPreData() {
+      const total = preSubmissions.length;
+      if (total === 0) { alert('No pre-test data to clear.'); return; }
+      if (!confirm(`⚠️ Permanently delete all ${total} pre-test submission(s)?`)) return;
+      const btn = document.getElementById('clearPreBtn');
       btn.disabled = true; btn.textContent = '⏳ Clearing…';
       try {
         await clearSubmissions();
-        alert('✅ All submissions deleted.');
-      } catch (err) {
-        console.error(err);
-        alert('❌ Failed. Check console.');
-      } finally {
-        btn.disabled = false; btn.textContent = '🗑️ Clear';
-      }
+        alert('✅ All pre-test submissions deleted.');
+      } catch (err) { console.error(err); alert('❌ Failed. Check console.'); }
+      finally { btn.disabled = false; btn.textContent = '🗑️ Clear Pre-Test Data'; }
+    }
+
+    async function clearPostData() {
+      const total = postSubmissions.length;
+      if (total === 0) { alert('No post-test data to clear.'); return; }
+      if (!confirm(`⚠️ Permanently delete all ${total} post-test submission(s)?`)) return;
+      const btn = document.getElementById('clearPostBtn');
+      btn.disabled = true; btn.textContent = '⏳ Clearing…';
+      try {
+        await clearSubmissionsPost();
+        alert('✅ All post-test submissions deleted.');
+      } catch (err) { console.error(err); alert('❌ Failed. Check console.'); }
+      finally { btn.disabled = false; btn.textContent = '🗑️ Clear Post-Test Data'; }
     }
   </script>
 </body>

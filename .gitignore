@@ -1,2 +1,4 @@
 .DS_Store
 SETUP_GUIDE.md
+export_firestore.py
+exports/

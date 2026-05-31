@@ -1,383 +1,453 @@
+// ═══════════════════════════════════════════════
+//  app.js — Physics For Fun Quiz Engine
+//  Shared across: index.html, quiz.html, result.html, admin.html
+// ═══════════════════════════════════════════════
+
 // ──────────────────────────────────────────────
-//  CONFIGURATION
+//  §1  CONFIGURATION
 // ──────────────────────────────────────────────
 const CONFIG = {
   adminPassword: 'admin123',
-  timerMinutes: 45,       // 45 minutes per test
-  passMark: 10,           // out of 25 (40%)
+  timerMinutes: 45,
+  passMark: 10,
   totalQuestions: 25,
-  storageKey: 'quiz_submissions',   // kept for reference
+  storageKey: 'quiz_submissions',
   firestoreCollection: 'submissions',
+  firestoreCollectionPost: 'submissions_post',
 };
 
 // ──────────────────────────────────────────────
-//  QUESTION BANK  (25 MCQs from PDF)
+//  §2  QUESTION BANKS
 // ──────────────────────────────────────────────
-const QUESTIONS = [
+
+// ── Hindi ─────────────────────────────────────
+const QUESTIONS_HI = [
   {
     id: 1,
-    text: "While using a Vernier calliper, a trainee teacher observes that the zero of the Vernier scale lies to the right of the zero of the main scale when the jaws are in contact. What type of error is this and how must it be handled?",
+    text: "वर्नियर कैलीपर्स का अल्पतमांक (Least Count) ज्ञात करने का सही मानक सूत्र क्या है?",
     options: {
-      A: "Positive zero error; it should be added to the final observed reading.",
-      B: "Positive zero error; it should be subtracted from the final observed reading.",
-      C: "Negative zero error; it should be subtracted from the final observed reading.",
-      D: "Negative zero error; it should be added to the final observed reading."
+      A: "वर्नियर पैमाने के एक भाग का मान / मुख्य पैमाने पर कुल भागों की संख्या",
+      B: "मुख्य पैमाने के एक सबसे छोटे भाग का मान / वर्नियर पैमाने पर कुल भागों की संख्या",
+      C: "मुख्य पैमाने के एक भाग का मान × वर्नियर पैमाने पर कुल भागों की संख्या",
+      D: "मुख्य पैमाने का पाठ्यांक + वर्नियर का पाठ्यांक"
     },
     correct: "B"
   },
   {
     id: 2,
-    text: "What is the primary cause of backlash error in a screw gauge or spherometer, and how can students be taught to minimize its impact during an experiment?",
+    text: "बीकर या कैलोरीमापी का आंतरिक व्यास (Internal diameter) मापने के लिए वर्नियर कैलीपर्स के किस भाग का उपयोग किया जाता है?",
     options: {
-      A: "Incorrect alignment of the main scale reference line; avoid it by recalculating the index error.",
-      B: "Non-uniformity of the measured wire; avoid it by taking readings at multiple perpendicular positions along the wire.",
-      C: "Wear and tear of the screw threads; avoid it by turning the thimble in one direction only while taking a particular reading.",
-      D: "Thermal expansion of the metal frame; avoid it by minimizing direct hand contact with the gauge."
-    },
-    correct: "C"
-  },
-  {
-    id: 3,
-    text: "In a spherometer experiment to determine the radius of curvature R of a spherical surface, the formula used is R = (l² / 6h) + (h / 2). What does the variable l represent?",
-    options: {
-      A: "The total diameter of the lens or curved surface under measurement.",
-      B: "The vertical distance moved by the central screw from the flat plane.",
-      C: "The pitch of the micrometer screw thread on the central pillar.",
-      D: "The mean distance between any two fixed outer legs of the spherometer."
+      A: "निचले जबड़ों (Lower jaws) का",
+      B: "गहराई मापने वाली छड़ (Depth measuring prong) का",
+      C: "मुख्य पैमाने (Main scale) के पिछले हिस्से का",
+      D: "ऊपरी जबड़ों (Upper jaws) का"
     },
     correct: "D"
   },
   {
-    id: 4,
-    text: "The mass and side length of a uniform copper cube are measured with maximum percentage errors of 1.5% and 1.0% respectively. What is the maximum percentage error in the calculated density of the cube?",
+    id: 3,
+    text: "स्क्रूगेज (Screw gauge) का उपयोग करते समय 'पिच त्रुटि' या 'बैकलैश त्रुटि' (Backlash error) से बचने के लिए छात्रों को क्या महत्वपूर्ण निर्देश देना चाहिए?",
     options: {
-      A: "4.5%",
-      B: "2.5%",
-      C: "3.5%",
-      D: "5.5%"
+      A: "पेंच को बहुत तेजी से घुमाएं ताकि चूड़ियों के बीच घर्षण कम हो जाएं।",
+      B: "पाठ्यांक लेने से पहले स्क्रूगेज को तेल या ग्रीस से पूरी तरह डुबो दें।",
+      C: "पेंच को हमेशा एक ही दिशा में घुमाएं; यदि पेंच आगे निकल जाए, तो उसे वापस घुमाने के बजाय पूरी तरह खोलकर दोबारा कसें।",
+      D: "हमेशा केवल मुख्य पैमाने का पाठ्यांक लें और वृत्तीय पैमाने को नजरअंदाज कर दें।"
+    },
+    correct: "C"
+  },
+  {
+    id: 4,
+    text: "स्फेरोमीटर द्वारा किसी गोलीय पृष्ठ की वक्रता त्रिज्या (R) ज्ञात करने के सूत्र R = (l² / 6h) + (h / 2) में 'l' क्या दर्शाता है?",
+    options: {
+      A: "स्फेरोमीटर के किन्हीं दो बाहरी स्थिर पैरों के बीच की औसत दूरी।",
+      B: "मध्य पेंच (Central screw) द्वारा तय की गई ऊर्ध्वाधर दूरी।",
+      C: "गोलीय पृष्ठ का कुल व्यास।",
+      D: "स्फेरोमीटर के वृत्तीय पैमाने की परिधि।"
     },
     correct: "A"
   },
   {
     id: 5,
-    text: "Why is a small, high-density spherical brass bob preferred over a large wooden bob in a simple pendulum experiment to determine the acceleration due to gravity (g)?",
+    text: "सदिशों के समांतर चतुर्भुज नियम के प्रयोग (ग्रेवसांडे उपकरण) में, धागों के जंक्शन (गांठ) की सही संतुलन स्थिति कब मानी जाती है?",
     options: {
-      A: "To increase the period of oscillation so it can be timed manually with higher precision.",
-      B: "To minimize air resistance effects and maintain a consistent, compact center of gravity.",
-      C: "To reduce the physical tension on the supporting string thread.",
-      D: "To allow the pendulum to oscillate with large angular amplitudes safely."
+      A: "जब गांठ बोर्ड के निचले हिस्से को छूने लगे।",
+      B: "जब गांठ ठीक ऊर्ध्वाधर बोर्ड के मध्य में लगे दर्पण के सामने बिना किसी सहारे के स्थिर हो जाए और घिरनियों पर कोई घर्षण न हो।",
+      C: "जब दोनों घिरनियों पर रखे गए बाटों का द्रव्यमान शून्य हो।",
+      D: "जब धागे आपस में 90 डिग्री का कोण बनाएं।"
     },
     correct: "B"
   },
   {
     id: 6,
-    text: "In a resonance tube experiment, the first resonance length is l₁ and the second resonance length is l₂. What is the standard expression for the end correction e?",
+    text: "सरल लोलक के प्रयोग में, प्रभावी लम्बाई (L) और आवर्तकाल के वर्ग (T²) के बीच खींचा गया ग्राफ कैसा होता है?",
     options: {
-      A: "e = l₂ − 2l₁",
-      B: "e = (3l₁ − l₂) / 2",
-      C: "e = (l₂ − 3l₁) / 2",
-      D: "e = (l₂ − l₁) / 2"
+      A: "एक परवलय (Parabola) जो L अक्ष की ओर झुका हो।",
+      B: "एक अतिपरवलय (Hyperbola)।",
+      C: "मूल बिंदु (Origin) से गुजरने वाली एक सरल रेखा।",
+      D: "L अक्ष के समानांतर एक क्षैतिज रेखा।"
     },
     correct: "C"
   },
   {
     id: 7,
-    text: "Why are students strongly advised to configure experiment variables to obtain the null balance point near the middle of a metre bridge wire (around 40–60 cm)?",
+    text: "यदि सरल लोलक के प्रयोग में समान आकार परंतु भिन्न द्रव्यमान (Mass) के गोलकों का उपयोग किया जाए, तो समान लम्बाई के लिए आवर्तकाल (T) पर क्या प्रभाव पड़ेगा (वायु प्रतिरोध को नगण्य मानते हुए)?",
     options: {
-      A: "To ensure that both galvanometer terminals experience equal and symmetrical deflections.",
-      B: "To prevent excessive current from flowing through the standard resistance arm.",
-      C: "To reduce the effect of contact resistance introduced by the jockey on the bridge wire.",
-      D: "To minimize the fractional percentage error in the balance length reading and achieve greater sensitivity."
+      A: "भारी गोलक का आवर्तकाल अधिक होगा।",
+      B: "आवर्तकाल अपरिवर्तित रहेगा क्योंकि यह लोलक के द्रव्यमान पर निर्भर नहीं करता।",
+      C: "हल्के गोलक का आवर्तकाल अधिक होगा।",
+      D: "आवर्तकाल पहले घटेगा और फिर बढ़ेगा।"
     },
-    correct: "D"
+    correct: "B"
   },
   {
     id: 8,
-    text: "In a potentiometer experiment, increasing the resistance in the primary (main) circuit using the rheostat has what effect on the potential gradient across the potentiometer wire?",
+    text: "शीतलन वक्र (Cooling curve) के प्रयोग में, न्यूटन के शीतलन नियम का सत्यापन करने के लिए ln(θ − θ₀) और समय (t) के बीच ग्राफ खींचा जाता है। यह ग्राफ कैसा प्राप्त होता है?",
     options: {
-      A: "The potential gradient decreases, requiring a longer wire length to balance the test EMF.",
-      B: "The potential gradient increases, requiring a shorter wire length to balance the test EMF.",
-      C: "The potential gradient remains unchanged, but the null point shifts toward the higher resistance end.",
-      D: "The potential gradient doubles, effectively halving the sensitivity of the instrument."
+      A: "धनात्मक प्रवणता (Positive slope) वाली एक सरल रेखा।",
+      B: "एक वक्र (Curve) जो समय अक्ष को कभी नहीं छूता।",
+      C: "ऋणात्मक प्रवणता (Negative slope) वाली एक सरल रेखा।",
+      D: "समय अक्ष के समानांतर एक सीधी रेखा।"
     },
-    correct: "A"
+    correct: "C"
   },
   {
     id: 9,
-    text: "In a potentiometer experiment to compare EMFs, if no balance point is found anywhere along the full length of the potentiometer wire, what is the most likely reason?",
+    text: "मिश्रण विधि द्वारा ठोस की विशिष्ट ऊष्मा धारिता ज्ञात करने का प्रयोग किस मूल सिद्धांत पर आधारित है?",
     options: {
-      A: "The jockey is making intermittent or poor electrical contact with the bridge wire.",
-      B: "The EMF of the cell being tested exceeds the total potential drop across the entire potentiometer wire.",
-      C: "The resistance of the galvanometer is too high, preventing current from flowing through the secondary loop.",
-      D: "The driver cell has become fully discharged and cannot sustain any potential difference."
+      A: "न्यूटन का शीतलन नियम।",
+      B: "ऊष्मागतिकी का प्रथम नियम (ली गई ऊष्मा = दी गई ऊष्मा)।",
+      C: "स्टीफन-बोल्ट्जमान का विकिरण नियम।",
+      D: "पास्कल का नियम।"
     },
     correct: "B"
   },
   {
     id: 10,
-    text: "When measuring the coefficient of viscosity of a liquid using Stokes' Law (by observing the terminal velocity of a falling sphere), why must the radius of the measuring cylinder be very large compared to the radius of the falling ball?",
+    text: "स्वरमापी (Sonometer) के प्रयोग में, यदि तार का तनाव (T) नियत रखा जाए, तो तार की अनुनादी लम्बाई (l) और उसकी मूल आवृत्ति (n) के बीच क्या संबंध होता है?",
     options: {
-      A: "To allow easier visual observation of the ball's motion through the viscous liquid.",
-      B: "To prevent convection currents from forming in the liquid due to the ball's movement.",
-      C: "To avoid wall effects that would artificially increase the viscous drag on the falling ball.",
-      D: "To ensure the ball reaches terminal velocity before entering the marked measurement zone."
-    },
-    correct: "C"
-  },
-  {
-    id: 11,
-    text: "In a capillary rise experiment, what is the effect on the height of liquid rise if the outer surface of the capillary tube is greased before being dipped into the liquid?",
-    options: {
-      A: "The height of liquid rise increases because the grease reduces friction between the tube and liquid.",
-      B: "The height of liquid rise remains unchanged because only the internal surface properties matter.",
-      C: "The height of liquid rise decreases slightly due to increased tube weight from the grease coating.",
-      D: "The height of liquid rise decreases significantly because grease reduces the adhesive force, increasing the contact angle."
+      A: "n ∝ l (आवृत्ति, लम्बाई के अनुक्रमानुपाती होती है)",
+      B: "n ∝ l² (आवृत्ति, लम्बाई के वर्ग के अनुक्रमानुपाती होती है)",
+      C: "n ∝ √l (आवृत्ति, लम्बाई के वर्गमूल के अनुक्रमानुपाती होती है)",
+      D: "n ∝ 1/l (आवृत्ति, लम्बाई के व्युत्क्रमानुपाती होती है)"
     },
     correct: "D"
   },
   {
-    id: 12,
-    text: "In a convex lens experiment to find the focal length, which of the following graph coordinates produces a straight line that can be easily used to read the focal length from its intercepts?",
+    id: 11,
+    text: "अनुनाद नली (Resonance tube) के प्रयोग में, यदि प्रथम अनुनाद स्थिति l₁ पर और द्वितीय अनुनाद स्थिति l₂ पर प्राप्त होती है, तो अंत्य संशोधन (End correction) 'e' का मान क्या होता है?",
     options: {
-      A: "A plot of 1/v on the Y-axis versus 1/u on the X-axis (using Cartesian sign conventions).",
-      B: "A plot of direct image distance v versus direct object distance u.",
-      C: "A plot of u² versus v².",
-      D: "A plot of u on the Y-axis versus 1/v on the X-axis."
+      A: "e = (l₂ − l₁) / 2",
+      B: "e = 3l₂ − l₁",
+      C: "e = (l₂ − 3l₁) / 2",
+      D: "e = l₁ + l₂"
+    },
+    correct: "C"
+  },
+  {
+    id: 12,
+    text: "सीमान्त घर्षण बल (Fs) तथा अभिलम्ब प्रतिक्रिया बल (R) के बीच खींचा गया ग्राफ कैसा होता है और इसकी प्रवणता (Slope) क्या दर्शाती है?",
+    options: {
+      A: "यह मूल बिंदु से गुजरने वाली एक सरल रेखा होती है और इसकी प्रवणता स्थैतिक घर्षण गुणांक (μs) को दर्शाती है।",
+      B: "यह एक वक्र (Curve) होता है और इसकी प्रवणता गुरुत्वीय त्वरण (g) को दर्शाती है।",
+      C: "यह क्षैतिज अक्ष के समानांतर एक रेखा है जो दर्शाती है कि घर्षण प्रतिक्रिया बल पर निर्भर नहीं करता।",
+      D: "यह एक सरल रेखा है जिसकी प्रवणता वस्तु के द्रव्यमान (m) को दर्शाती है।"
     },
     correct: "A"
   },
   {
     id: 13,
-    text: "How can a trainee verify that parallax has been completely removed between an object pin and the real image pin on an optical bench?",
+    text: "नत समतल (Inclined plane) पर गुरुत्व के अधीन एक रोलर को स्थिर रखने के लिए आवश्यक बल (F) और नत समतल के झुकाव कोण के ज्या (sin θ) के बीच खींचे गए ग्राफ की प्रकृति कैसी होती है?",
     options: {
-      A: "By confirming that both pins are adjusted to the exact same vertical height from the base.",
-      B: "By shifting the eye sideways; both pins must appear to move together without any relative displacement between their tips.",
-      C: "By bringing the pins close enough together that their physical tips touch.",
-      D: "By closing one eye and verifying that the image pin appears upright and sharp."
-    },
-    correct: "B"
-  },
-  {
-    id: 14,
-    text: "When plotting the relationship between the angle of incidence (i) and the angle of deviation (δ) for a glass prism, what is the characteristic shape of the resulting curve?",
-    options: {
-      A: "It remains entirely constant across all changes to the angle of incidence.",
-      B: "It increases linearly as the angle of incidence increases.",
-      C: "It decreases initially to a minimum value and then increases as the angle of incidence continues to rise.",
-      D: "It forms a continuously decreasing curve that approaches zero asymptotically."
-    },
-    correct: "C"
-  },
-  {
-    id: 15,
-    text: "To convert a galvanometer of coil resistance G into an ammeter of a desired range 0 to I, a shunt resistance S is connected in parallel. If the full-scale deflection current is Ig, what is the correct formula for S?",
-    options: {
-      A: "S = (I − Ig) × G",
-      B: "S = ((I − Ig) × G) / Ig",
-      C: "S = (Ig × G) / I",
-      D: "S = (Ig × G) / (I − Ig)"
-    },
-    correct: "D"
-  },
-  {
-    id: 16,
-    text: "When converting a galvanometer into a voltmeter, a high resistance R is connected in series. If the desired voltage range is V and the galvanometer resistance is G, what is the mathematically sound choice for R?",
-    options: {
-      A: "R = (V / Ig) − G",
-      B: "R = (Ig / V) − G",
-      C: "R = (V − G) / Ig",
-      D: "R = V × Ig − G"
+      A: "मूल बिंदु से आरंभ होने वाली एक सीधी रेखा (Straight line)।",
+      B: "एक परवलयाकार वक्र (Parabolic curve)।",
+      C: "एक चरघातांकी वक्र (Exponential curve)।",
+      D: "एक वृत्त (Circle) का चतुर्थांश।"
     },
     correct: "A"
   },
   {
-    id: 17,
-    text: "In a concave mirror experiment to find the focal length, what happens to the image if the lower half of the mirror's reflecting surface is covered with an opaque black paper?",
+    id: 14,
+    text: "अवतल दर्पण की फोकस दूरी ज्ञात करने के लिए 1/u (X-अक्ष) और 1/v (Y-अक्ष) के बीच ग्राफ खींचने पर, अक्षों पर काटे गए अन्तःखण्ड (Intercepts) का मान किसके बराबर होता है?",
     options: {
-      A: "Only the upper half of the object's image is visible on the screen.",
-      B: "A full, complete image continues to form, but its total brightness/intensity is reduced.",
-      C: "Only the lower half of the object's image is visible on the screen.",
-      D: "The image disappears entirely because the principal axis is blocked."
+      A: "f (फोकस दूरी) के सीधे बराबर।",
+      B: "1/f के बराबर।",
+      C: "2/f के बराबर।",
+      D: "वक्रता त्रिज्या (R) के बराबर।"
+    },
+    correct: "B"
+  },
+  {
+    id: 15,
+    text: "उत्तल लेंस की फोकस दूरी ज्ञात करने के लिए वस्तु की दूरी (u) और प्रतिबिंब की दूरी (v) के बीच खींचा गया u-v ग्राफ किस ज्यामितीय आकार का होता है?",
+    options: {
+      A: "एक समकोणीय अतिपरवलय (Rectangular Hyperbola)।",
+      B: "एक सरल रेखा (Straight line)।",
+      C: "एक पूर्ण वृत्त (Perfect circle)।",
+      D: "एक परवलय (Parabola)।"
+    },
+    correct: "A"
+  },
+  {
+    id: 16,
+    text: "प्रिज्म के प्रयोग में आपतन कोण (i) और विचलन कोण (δ) के बीच खींचे गए ग्राफ (i-δ वक्र) में 'न्यूनतम विचलन की स्थिति' (Angle of minimum deviation) में प्रिज्म के अंदर प्रकाश किरण का व्यवहार कैसा होता है?",
+    options: {
+      A: "प्रकाश किरण पूर्ण आंतरिक परावर्तन का अनुभव करती है।",
+      B: "आपतन कोण और निर्गत कोण का योग शून्य हो जाता है।",
+      C: "किरण बिना किसी अपवर्तन के सीधे निकल जाती है।",
+      D: "प्रिज्म के अंदर अपवर्तित किरण प्रिज्म के आधार के समानांतर हो जाती है।"
+    },
+    correct: "D"
+  },
+  {
+    id: 17,
+    text: "उत्तल लेंस और समतल दर्पण की सहायता से किसी द्रव का अपवर्तनांक ज्ञात करने के प्रयोग में, जब लेंस और दर्पण के बीच द्रव डाला जाता है, तो वहाँ किस प्रकार का 'द्रव लेंस' (Liquid lens) बनता है?",
+    options: {
+      A: "समतल-उत्तल लेंस (Plano-convex lens)।",
+      B: "समतल-अवतल लेंस (Plano-concave lens)।",
+      C: "उभयोत्तल लेंस (Biconvex lens)।",
+      D: "अवतलोत्तल लेंस (Concavo-convex lens)।"
     },
     correct: "B"
   },
   {
     id: 18,
-    text: "When validating Newton's Law of Cooling, a graph of ln(θ − θ₀) versus time (t) is plotted (where θ is the container temperature and θ₀ is room temperature). What should the shape of this graph be?",
+    text: "मीटर सेतु (Meter bridge) में परिपथ के विभिन्न भागों को जोड़ने के लिए तांबे की मोटी पत्तियों (Thick copper strips) का उपयोग क्यों किया जाता है?",
     options: {
-      A: "A perfect parabola that opens upward.",
-      B: "A straight line passing through the origin with a positive slope.",
-      C: "A straight line with a negative slope.",
-      D: "An exponential curve that approaches the horizontal time axis asymptotically."
-    },
-    correct: "C"
-  },
-  {
-    id: 19,
-    text: "In a sonometer experiment, if the wire tension T and linear mass density m are held constant, what relationship should be plotted to yield a straight line passing through the origin?",
-    options: {
-      A: "The square of frequency (f²) directly versus the length (l).",
-      B: "Frequency (f) directly versus the vibrating length (l).",
-      C: "Frequency (f) versus the square root of length.",
-      D: "Frequency (f) on the Y-axis versus the reciprocal of length (1/l) on the X-axis."
-    },
-    correct: "D"
-  },
-  {
-    id: 20,
-    text: "In the forward bias characteristics of a p-n junction diode, what is the region before the current begins to rise sharply called, and what electrical barrier must be overcome?",
-    options: {
-      A: "Knee voltage region; the external forward voltage must overcome the internal potential barrier of the depletion layer.",
-      B: "Breakdown voltage region; it corresponds to the thermal ionization of covalent bonds.",
-      C: "Ohmic linear conduction region; it satisfies a fixed resistance ratio.",
-      D: "Saturation current plateau; it is limited by minority carrier diffusion."
+      A: "ताकि पत्तियों का अपना प्रतिरोध नगण्य (negligible) रहे और वे सेतु के संतुलन को प्रभावित न करें।",
+      B: "ताकि प्रयोग के दौरान उच्च धारा बहने पर उपकरण गर्म न हो।",
+      C: "ताकि जॉकी को सरकाने के लिए एक मजबूत यांत्रिक आधार मिल सके।",
+      D: "ताकि तांबे की पट्टियां बाहरी चुंबकीय क्षेत्रों से परिपथ को 'शील्ड' (shield) कर सकें।"
     },
     correct: "A"
   },
   {
-    id: 21,
-    text: "Why is it standard laboratory practice to disconnect the plug key in an electrical circuit between taking consecutive sets of readings?",
+    id: 19,
+    text: "मीटर सेतु के प्रयोग में, सबसे सटीक परिणाम प्राप्त करने और प्रतिशत त्रुटि को न्यूनतम करने के लिए शून्य विक्षेप स्थिति (Null point) तार के किस भाग पर प्राप्त करने का प्रयास करना चाहिए?",
     options: {
-      A: "Continuous current causes the battery's zero calibration to drift over time.",
-      B: "Continuous current flow heats up the wires and resistors, which changes their resistance and introduces systematic errors.",
-      C: "The internal coils of the ammeters and voltmeters may become permanently magnetized.",
-      D: "To allow accumulated static charge on the insulation surfaces to dissipate."
+      A: "0 cm के सिरे के बहुत करीब।",
+      B: "100 cm के सिरे के बहुत करीब।",
+      C: "तार के बिल्कुल मध्य भाग के करीब (लगभग 40 cm से 60 cm के बीच)।",
+      D: "कहीं भी, स्थिति से सटीकता पर कोई प्रभाव नहीं पड़ता।"
     },
-    correct: "B"
+    correct: "C"
+  },
+  {
+    id: 20,
+    text: "ओम के नियम के सत्यापन प्रयोग में, चालक तार के सिरों के बीच विभवान्तर मापने के लिए वोल्टमीटर को परिपथ में कैसे जोड़ा जाता है और क्यों?",
+    options: {
+      A: "श्रेणी क्रम (Series) में, ताकि यह परिपथ की कुल धारा को रोककर विभव को माप सके।",
+      B: "समानांतर क्रम में, क्योंकि इसका प्रतिरोध बहुत कम होता है और यह परिपथ को शॉर्ट-सर्किट होने से बचाता है।",
+      C: "श्रेणी क्रम में, ताकि बैटरी से निकलने वाली धारा वोल्टमीटर से होकर ही गुजरे।",
+      D: "समानांतर क्रम (Parallel) में, क्योंकि समानांतर क्रम में विभवान्तर समान रहता है और इसका उच्च प्रतिरोध मुख्य धारा को प्रभावित नहीं करता।"
+    },
+    correct: "D"
+  },
+  {
+    id: 21,
+    text: "एक दिए गए धारामापी (Galvanometer) को एक निश्चित परास (Range) के वोल्टमीटर में बदलने के लिए क्या सैद्धांतिक समायोजन किया जाता है?",
+    options: {
+      A: "धारामापी के साथ श्रेणी क्रम (Series) में एक उच्च मान का प्रतिरोध (High resistance) जोड़ा जाता है।",
+      B: "धारामापी के साथ समानांतर क्रम (Parallel) में एक कम मान का शंट प्रतिरोध (Shunt) जोड़ा जाता है।",
+      C: "धारामापी के साथ श्रेणी क्रम में एक बहुत कम मान का प्रतिरोध जोड़ा जाता है।",
+      D: "धारामापी के साथ समानांतर क्रम में एक उच्च मान का प्रतिरोध जोड़ा जाता है।"
+    },
+    correct: "A"
   },
   {
     id: 22,
-    text: "A student uses a travelling microscope to measure the refractive index of a glass slab. They record three vertical positions: the real bottom mark (R₁), the apparent bottom mark viewed through the slab (R₂), and a powder mark on the top surface (R₃). What is the correct expression for the refractive index μ?",
+    text: "धारामापी (Galvanometer) को अमीटर (Ammeter) में बदलने के लिए लगाए जाने वाले 'शंट' (Shunt) प्रतिरोध की क्या विशेषता होती है?",
     options: {
-      A: "μ = (R₂ − R₁) / (R₃ − R₁)",
-      B: "μ = (R₃ − R₂) / (R₃ − R₁)",
-      C: "μ = (R₃ − R₁) / (R₃ − R₂)",
-      D: "μ = (R₃ − R₁) / (R₂ − R₁)"
+      A: "यह श्रेणी क्रम में लगा हुआ एक उच्च मान (High value) का प्रतिरोध होता है।",
+      B: "यह श्रेणी क्रम में लगा हुआ एक बहुत कम मान का प्रतिरोध होता है।",
+      C: "यह समानांतर क्रम में लगा हुआ एक बहुत कम मान (Low value) का प्रतिरोध होता है।",
+      D: "यह समानांतर क्रम में लगा हुआ एक उच्च मान का प्रतिरोध होता है।"
     },
     correct: "C"
   },
   {
     id: 23,
-    text: "A spherometer screw advances by 2 mm over 4 complete rotations. If the circular scale contains 100 equal divisions, what is the calculated least count of this instrument?",
+    text: "P-N संधि डायोड (P-N junction diode) के अग्र अभिनति (Forward bias) अभिलाक्षणिक वक्र में, वह न्यूनतम विभव जिस पर धारा का मान चरघातांकी (exponentially) रूप से तेजी से बढ़ने लगता है, क्या कहलाता है?",
     options: {
-      A: "0.05 mm",
-      B: "0.01 mm",
-      C: "0.002 mm",
-      D: "0.005 mm"
-    },
-    correct: "D"
-  },
-  {
-    id: 24,
-    text: "When analyzing an experiment governed by the physical law y = kx², what variables should be plotted on the axes to determine the constant value k directly from the slope of a linear graph?",
-    options: {
-      A: "Plot y on the Y-axis versus x² on the X-axis.",
-      B: "Plot y directly versus x.",
-      C: "Plot √y versus x².",
-      D: "Plot y versus 1/x."
+      A: "नी वोल्टेज (Knee voltage) या cut-in वोल्टेज।",
+      B: "भंजन वोल्टेज (Breakdown voltage)।",
+      C: "निरोधी विभव (Stopping potential)।",
+      D: "शिखर प्रतिलोम वोल्टेज (Peak Inverse Voltage)।"
     },
     correct: "A"
   },
   {
-    id: 25,
-    text: "What are 'end resistances' or 'end errors' in a metre bridge experiment, and how can they be minimized during calculations?",
+    id: 24,
+    text: "प्रत्यावर्ती धारा (AC) मेन्स की आवृत्ति ज्ञात करने के लिए स्वरमापी (Sonometer) के प्रयोग में, यदि तार के बीच में एक नाल-चुंबक (Horseshoe magnet) रखा जाए, तो तार के कंपन की आवृत्ति (n) और AC मेन्स की आवृत्ति (f) में क्या संबंध होता है?",
     options: {
-      A: "Resistances from the internal components of the driver cell; they are minimized by using a battery with a higher voltage output.",
-      B: "Resistances due to the terminating copper strips and wire soldering contacts; they are minimized by repeating measurements after interchanging the positions of the unknown and standard resistors.",
-      C: "Inaccuracies from variations in the bridge wire's cross-section; they are minimized by sliding the jockey firmly along the wire.",
-      D: "Parallax errors at the extreme ends of the scale; they are minimized by using a magnifying glass to read the marks."
+      A: "तार की आवृत्ति, AC मेन्स की आवृत्ति की दोगुनी होती है (n = 2f)।",
+      B: "तार की आवृत्ति, AC मेन्स की आवृत्ति के बिल्कुल बराबर होती है (n = f)।",
+      C: "तार की आवृत्ति, AC मेन्स की आवृत्ति की आधी होती है (n = f/2)।",
+      D: "चुंबक की उपस्थिति से तार के कंपन की आवृत्ति पर कोई प्रभाव नहीं पड़ता।"
     },
     correct: "B"
+  },
+  {
+    id: 25,
+    text: "अवतल लेंस (Concave lens) की फोकस दूरी ज्ञात करने के प्रयोग में, अवतल लेंस को एक ज्ञात उत्तल लेंस (Convex lens) के संपर्क में क्यों रखा जाता है?",
+    options: {
+      A: "क्योंकि अवतल लेंस अकेले केवल आभासी (Virtual) प्रतिबिंब बनाता है जिसे पर्दे पर प्राप्त नहीं किया जा सकता।",
+      B: "ताकि दोनों लेंसों के वर्ण विक्षेपण (Chromatic aberration) को खत्म किया जा सके।",
+      C: "ताकि अवतल लेंस की सतह को खरोंच लगने से बचाया जा सके।",
+      D: "क्योंकि प्रकाश केवल दो लेंसों के संयोजन से ही गुजर सकता है, अकेले अवतल लेंस से नहीं।"
+    },
+    correct: "A"
   }
 ];
 
+// ── English ───────────────────────────────────
+const QUESTIONS_EN = [
+  { id: 1,  text: "What is the correct standard formula to find the least count of a Vernier calliper?", options: { A: "Value of one Vernier scale division / Total number of divisions on the main scale", B: "Value of one smallest main scale division / Total number of divisions on the Vernier scale", C: "Value of one main scale division × Total number of divisions on the Vernier scale", D: "Main scale reading + Vernier scale reading" }, correct: "B" },
+  { id: 2,  text: "Which part of a Vernier calliper is used to measure the internal diameter of a beaker or calorimeter?", options: { A: "Lower jaws", B: "Depth measuring prong", C: "Back of the main scale", D: "Upper jaws" }, correct: "D" },
+  { id: 3,  text: "What important instruction should be given to students to avoid backlash error when using a screw gauge or spherometer?", options: { A: "Rotate the screw very quickly to minimize friction between the threads.", B: "Fully immerse the screw gauge in oil or grease before taking readings.", C: "Always rotate the screw in one direction only; if it overshoots, open it fully and tighten again.", D: "Always take only the main scale reading and ignore the circular scale." }, correct: "C" },
+  { id: 4,  text: "In the formula R = (l² / 6h) + (h / 2) used to determine the radius of curvature (R) of a spherical surface using a spherometer, what does the variable 'l' represent?", options: { A: "The mean distance between any two fixed outer legs of the spherometer.", B: "The vertical distance moved by the central screw.", C: "The total diameter of the spherical surface.", D: "The circumference of the circular scale of the spherometer." }, correct: "A" },
+  { id: 5,  text: "In the experiment for the parallelogram law of vectors (Gravesand's apparatus), when is the equilibrium position of the junction (knot) of the threads considered correct?", options: { A: "When the knot touches the lower part of the board.", B: "When the knot becomes stable without any support right in front of the mirror fixed in the middle of the vertical board, and there is no friction on the pulleys.", C: "When the mass of the weights placed on both pulleys is zero.", D: "When the threads make an angle of 90 degrees with each other." }, correct: "B" },
+  { id: 6,  text: "In a simple pendulum experiment, what is the nature of the graph plotted between the effective length (L) and the square of the time period (T²)?", options: { A: "A parabola inclined towards the L-axis.", B: "A rectangular hyperbola.", C: "A straight line passing through the origin.", D: "A horizontal line parallel to the L-axis." }, correct: "C" },
+  { id: 7,  text: "If bobs of the same size but different masses are used in a simple pendulum experiment, what will be the effect on the time period (T) for the same length (neglecting air resistance)?", options: { A: "The time period of the heavier bob will be greater.", B: "The time period will remain unchanged because it does not depend on the mass of the pendulum.", C: "The time period of the lighter bob will be greater.", D: "The time period will first decrease and then increase." }, correct: "B" },
+  { id: 8,  text: "In the cooling curve experiment, a graph is plotted between ln(θ − θ₀) and time (t) to verify Newton's law of cooling. What is the nature of this graph?", options: { A: "A straight line with a positive slope.", B: "A curve that never touches the time axis.", C: "A straight line with a negative slope.", D: "A straight line parallel to the time axis." }, correct: "C" },
+  { id: 9,  text: "On which fundamental principle is the experiment to find the specific heat capacity of a solid by the method of mixtures based?", options: { A: "Newton's law of cooling.", B: "The first law of thermodynamics (Heat gained = Heat lost).", C: "Stefan-Boltzmann's law of radiation.", D: "Pascal's law." }, correct: "B" },
+  { id: 10, text: "In a sonometer experiment, if the tension (T) in the wire is kept constant, what is the relationship between the resonant length (l) of the wire and its fundamental frequency (n)?", options: { A: "n ∝ l (Frequency is directly proportional to length)", B: "n ∝ l² (Frequency is directly proportional to the square of length)", C: "n ∝ √l (Frequency is directly proportional to the square root of length)", D: "n ∝ 1/l (Frequency is inversely proportional to length)" }, correct: "D" },
+  { id: 11, text: "In a resonance tube experiment, if the first resonance position is obtained at l₁ and the second resonance position at l₂, what is the standard expression for the end correction 'e'?", options: { A: "e = (l₂ − l₁) / 2", B: "e = 3l₂ − l₁", C: "e = (l₂ − 3l₁) / 2", D: "e = l₁ + l₂" }, correct: "C" },
+  { id: 12, text: "What is the nature of the graph drawn between the limiting friction force (Fs) and the normal reaction force (R), and what does its slope represent?", options: { A: "It is a straight line passing through the origin and its slope represents the coefficient of static friction (μs).", B: "It is a curve and its slope represents the acceleration due to gravity (g).", C: "It is a line parallel to the horizontal axis showing that friction does not depend on the reaction force.", D: "It is a straight line whose slope represents the mass (m) of the object." }, correct: "A" },
+  { id: 13, text: "What is the nature of the graph drawn between the force (F) required to keep a roller stable under gravity on an inclined plane and the sine of the angle of inclination (sin θ)?", options: { A: "A straight line starting from the origin.", B: "A parabolic curve.", C: "An exponential curve.", D: "A quadrant of a circle." }, correct: "A" },
+  { id: 14, text: "When plotting a graph between 1/u (X-axis) and 1/v (Y-axis) to find the focal length of a concave mirror, what is the value of the intercepts cut off on the axes equal to?", options: { A: "Directly equal to f (focal length).", B: "Equal to 1/f.", C: "Equal to 2/f.", D: "Equal to the radius of curvature (R)." }, correct: "B" },
+  { id: 15, text: "What is the geometric shape of the u-v graph drawn between the object distance (u) and image distance (v) to find the focal length of a convex lens?", options: { A: "A rectangular hyperbola.", B: "A straight line.", C: "A perfect circle.", D: "A parabola." }, correct: "A" },
+  { id: 16, text: "In the prism experiment, what is the behavior of the light ray inside the prism at the 'position of minimum deviation' in the graph drawn between the angle of incidence (i) and the angle of deviation (δ)?", options: { A: "The light ray experiences total internal reflection.", B: "The sum of the angle of incidence and angle of emergence becomes zero.", C: "The ray passes straight through without any refraction.", D: "The refracted ray inside the prism becomes parallel to the base of the prism." }, correct: "D" },
+  { id: 17, text: "In the experiment to find the refractive index of a liquid using a convex lens and a plane mirror, what type of 'liquid lens' is formed when the liquid is placed between the lens and the mirror?", options: { A: "Plano-convex lens.", B: "Plano-concave lens.", C: "Biconvex lens.", D: "Concavo-convex lens." }, correct: "B" },
+  { id: 18, text: "Why are thick copper strips used to connect different parts of the circuit in a meter bridge?", options: { A: "So that the resistance of the strips remains negligible and does not affect the balance of the bridge.", B: "To prevent the apparatus from heating up when high current flows during the experiment.", C: "To provide a strong mechanical base for sliding the jockey.", D: "So that the copper strips can shield the circuit from external magnetic fields." }, correct: "A" },
+  { id: 19, text: "In a meter bridge experiment, to obtain the most accurate result and minimize fractional percentage error, on which part of the wire should one try to obtain the null point?", options: { A: "Very close to the 0 cm end.", B: "Very close to the 100 cm end.", C: "Close to the exact middle part of the wire (around 40 cm to 60 cm).", D: "Anywhere, the position does not affect accuracy." }, correct: "C" },
+  { id: 20, text: "In the experiment to verify Ohm's law, how is the voltmeter connected in the circuit to measure the potential difference across the conducting wire, and why?", options: { A: "In series, so that it can measure the potential difference by stopping the total current of the circuit.", B: "In parallel, because its resistance is very low and it protects the circuit from short-circuiting.", C: "In series, so that the current coming from the battery passes only through the voltmeter.", D: "In parallel, because the potential difference remains the same in parallel combination and its high resistance does not affect the main current." }, correct: "D" },
+  { id: 21, text: "What theoretical adjustment is made to convert a given galvanometer into a voltmeter of a specific range?", options: { A: "A high resistance is connected in series with the galvanometer.", B: "A low value shunt resistance is connected in parallel with the galvanometer.", C: "A very low value resistance is connected in series with the galvanometer.", D: "A high value resistance is connected in parallel with the galvanometer." }, correct: "A" },
+  { id: 22, text: "What is the characteristic of the 'shunt' resistance used to convert a galvanometer into an ammeter?", options: { A: "It is a high value resistance connected in series.", B: "It is a very low value resistance connected in series.", C: "It is a very low value resistance (low value) connected in parallel.", D: "It is a high value resistance connected in parallel." }, correct: "C" },
+  { id: 23, text: "In the forward bias characteristic curve of a P-N junction diode, what is the minimum potential at which the current begins to increase rapidly (exponentially) called?", options: { A: "Knee voltage or cut-in voltage.", B: "Breakdown voltage.", C: "Stopping potential.", D: "Peak Inverse Voltage." }, correct: "A" },
+  { id: 24, text: "In the sonometer experiment to find the frequency of AC mains, if a horseshoe magnet is placed in the middle of the wire, what is the relationship between the frequency of vibration of the wire (n) and the frequency of the AC mains (f)?", options: { A: "The frequency of the wire is exactly twice the frequency of the AC mains (n = 2f).", B: "The frequency of the wire is exactly equal to the frequency of the AC mains (n = f).", C: "The frequency of the wire is half the frequency of the AC mains (n = f/2).", D: "The presence of the magnet has no effect on the frequency of vibration of the wire." }, correct: "B" },
+  { id: 25, text: "In the experiment to find the focal length of a concave lens, why is the concave lens placed in contact with a known convex lens?", options: { A: "Because a concave lens alone forms only a virtual image which cannot be obtained on a screen.", B: "To eliminate the chromatic aberration of both lenses.", C: "To protect the surface of the concave lens from scratches.", D: "Because light can pass only through a combination of two lenses and not through a concave lens alone." }, correct: "A" }
+];
+
 // ──────────────────────────────────────────────
-//  FIRESTORE STORAGE FUNCTIONS  (async)
+//  §3  LANGUAGE SELECTOR
+// ──────────────────────────────────────────────
+const QUESTIONS = (sessionStorage.getItem('quiz_language') === 'en')
+  ? QUESTIONS_EN
+  : QUESTIONS_HI;
+
+// ──────────────────────────────────────────────
+//  §4  FIRESTORE — Generic CRUD Helpers
+//  All collection-specific functions delegate here.
 // ──────────────────────────────────────────────
 
-/**
- * Save a submission to Firestore.
- * Also caches it in sessionStorage so result.html can read instantly.
- */
-async function saveSubmission(submission) {
-  await window.db.collection(CONFIG.firestoreCollection).doc(submission.id).set(submission);
-}
-
-/**
- * Fetch all submissions from Firestore, sorted newest-first (client-side).
- */
-async function getSubmissions() {
-  const snap = await window.db
-    .collection(CONFIG.firestoreCollection)
-    .get();
-  const raw = snap.docs.map(d => d.data());
-  return raw.sort((a, b) => {
+/** Sort submissions newest-first by submittedAt. */
+function _sortByDate(arr) {
+  return arr.slice().sort((a, b) => {
     const ta = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
     const tb = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
     return tb - ta;
   });
 }
 
-/**
- * Delete all submissions from Firestore using a batch.
- */
-async function clearSubmissions() {
-  const snap = await window.db.collection(CONFIG.firestoreCollection).get();
+/** Get a Firestore CollectionReference for the given collection name. */
+function _col(name) {
+  return window.db.collection(name);
+}
+
+async function _saveDoc(collection, doc) {
+  await _col(collection).doc(doc.id).set(doc);
+}
+
+async function _getAllDocs(collection) {
+  const snap = await _col(collection).get();
+  return _sortByDate(snap.docs.map(d => d.data()));
+}
+
+async function _clearCollection(collection) {
+  const snap = await _col(collection).get();
   if (snap.empty) return;
   const batch = window.db.batch();
   snap.docs.forEach(doc => batch.delete(doc.ref));
   await batch.commit();
 }
 
-/**
- * Real-time listener — calls callback(submissions[]) whenever data changes.
- * Submissions are sorted newest-first client-side (no Firestore index needed).
- * Returns the unsubscribe function.
- * @param {function} callback - called with sorted submissions array on each update
- * @param {function} [onError]  - called with the Firestore error if the listener fails
- */
-function subscribeToSubmissions(callback, onError) {
-  return window.db
-    .collection(CONFIG.firestoreCollection)
-    // ⚠️  No .orderBy() here — orderBy kills the listener permanently when a
-    //     Firestore index re-evaluates on a new write. Sort client-side instead.
-    .onSnapshot(
-      { includeMetadataChanges: false },
-      (snapshot) => {
-        const raw = snapshot.docs.map(d => d.data());
-        // Sort newest-first
-        const submissions = raw.slice().sort((a, b) => {
-          const ta = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
-          const tb = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
-          return tb - ta;
-        });
-        callback(submissions);
-      },
-      (err) => {
-        console.error('Firestore snapshot error:', err);
-        if (typeof onError === 'function') onError(err);
-      }
-    );
+function _subscribeTo(collection, callback, onError) {
+  return _col(collection).onSnapshot(
+    { includeMetadataChanges: false },
+    (snapshot) => {
+      callback(_sortByDate(snapshot.docs.map(d => d.data())));
+    },
+    (err) => {
+      console.error(`Firestore [${collection}] snapshot error:`, err);
+      if (typeof onError === 'function') onError(err);
+    }
+  );
 }
 
 // ──────────────────────────────────────────────
-//  GRADING
+//  §5  FIRESTORE — Pre-Test API
+// ──────────────────────────────────────────────
+
+const saveSubmission         = (sub) => _saveDoc(CONFIG.firestoreCollection, sub);
+const getSubmissions         = ()    => _getAllDocs(CONFIG.firestoreCollection);
+const clearSubmissions       = ()    => _clearCollection(CONFIG.firestoreCollection);
+const subscribeToSubmissions = (cb, onErr) => _subscribeTo(CONFIG.firestoreCollection, cb, onErr);
+
+// ──────────────────────────────────────────────
+//  §6  FIRESTORE — Post-Test API
+// ──────────────────────────────────────────────
+
+const saveSubmissionPost         = (sub) => _saveDoc(CONFIG.firestoreCollectionPost, sub);
+const getSubmissionsPost         = ()    => _getAllDocs(CONFIG.firestoreCollectionPost);
+const clearSubmissionsPost       = ()    => _clearCollection(CONFIG.firestoreCollectionPost);
+const subscribeToSubmissionsPost = (cb, onErr) => _subscribeTo(CONFIG.firestoreCollectionPost, cb, onErr);
+
+// ──────────────────────────────────────────────
+//  §7  FIRESTORE — Auto-Fill & Lookup
+// ──────────────────────────────────────────────
+
+/** Look up a pre-test submission by a field value (e.g. mobile, email). */
+async function lookupPreTestByField(field, value) {
+  try {
+    const snap = await _col(CONFIG.firestoreCollection)
+      .where(field, '==', value)
+      .limit(1)
+      .get();
+    return snap.empty ? null : snap.docs[0].data();
+  } catch (err) {
+    console.warn('Auto-fill lookup failed:', err);
+    return null;
+  }
+}
+
+/** Fetch a single pre-test submission by its document ID. */
+async function fetchPreTestById(id) {
+  try {
+    const doc = await _col(CONFIG.firestoreCollection).doc(id).get();
+    return doc.exists ? doc.data() : null;
+  } catch (err) {
+    console.warn('Pre-test fetch failed:', err);
+    return null;
+  }
+}
+
+// ──────────────────────────────────────────────
+//  §8  GRADING
 // ──────────────────────────────────────────────
 
 function gradeAnswers(answers) {
   let score = 0;
   const details = QUESTIONS.map((q, i) => {
     const given = answers[i] || null;
-    const correct = q.correct;
-    const isCorrect = given === correct;
+    const isCorrect = given === q.correct;
     if (isCorrect) score++;
-    return { questionId: q.id, given, correct, isCorrect };
+    return { questionId: q.id, given, correct: q.correct, isCorrect };
   });
   return { score, total: QUESTIONS.length, passed: score >= CONFIG.passMark, details };
 }
 
 // ──────────────────────────────────────────────
-//  UTILITIES
+//  §9  UTILITIES
 // ──────────────────────────────────────────────
 
 function generateId() {
@@ -391,32 +461,27 @@ function formatDate(isoString) {
   });
 }
 
-// ── Session helpers ────────────────────────────
+// ──────────────────────────────────────────────
+//  §10  SESSION HELPERS
+// ──────────────────────────────────────────────
+
+const _SESSION_KEYS = ['name', 'uniqueid', 'mobile', 'school', 'email'];
 
 function savePendingUser(name, uniqueid, mobile, school, email) {
-  sessionStorage.setItem('quiz_pending_name',     name);
-  sessionStorage.setItem('quiz_pending_uniqueid', uniqueid);
-  sessionStorage.setItem('quiz_pending_mobile',   mobile);
-  sessionStorage.setItem('quiz_pending_school',   school);
-  sessionStorage.setItem('quiz_pending_email',    email);
+  const vals = { name, uniqueid, mobile, school, email };
+  _SESSION_KEYS.forEach(k => sessionStorage.setItem(`quiz_pending_${k}`, vals[k]));
 }
 
 function getPendingUser() {
-  return {
-    name:     sessionStorage.getItem('quiz_pending_name')     || '',
-    uniqueid: sessionStorage.getItem('quiz_pending_uniqueid') || '',
-    mobile:   sessionStorage.getItem('quiz_pending_mobile')   || '',
-    school:   sessionStorage.getItem('quiz_pending_school')   || '',
-    email:    sessionStorage.getItem('quiz_pending_email')    || '',
-  };
+  const user = {};
+  _SESSION_KEYS.forEach(k => { user[k] = sessionStorage.getItem(`quiz_pending_${k}`) || ''; });
+  return user;
 }
 
-/** Store the full graded submission in sessionStorage for result.html */
 function cacheSubmissionLocally(submission) {
   sessionStorage.setItem('quiz_last_submission', JSON.stringify(submission));
 }
 
-/** Read cached submission (set during quiz submit) */
 function getCachedSubmission() {
   try {
     const raw = sessionStorage.getItem('quiz_last_submission');
@@ -425,13 +490,13 @@ function getCachedSubmission() {
 }
 
 // ──────────────────────────────────────────────
-//  SCROLL REVEAL INITIALIZATION
+//  §11  SCROLL REVEAL (runs on DOMContentLoaded)
 // ──────────────────────────────────────────────
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Add body class indicating JavaScript is active
   document.body.classList.add('js-enabled');
 
-  // Trigger IntersectionObserver for reveal animations on older browsers
+  // Fallback IntersectionObserver for browsers without scroll-driven animations
   if (!CSS.supports('(animation-timeline: view()) and (animation-range: entry)')) {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -440,13 +505,8 @@ document.addEventListener('DOMContentLoaded', () => {
           observer.unobserve(entry.target);
         }
       });
-    }, {
-      rootMargin: '0px 0px -50px 0px',
-      threshold: 0.08
-    });
+    }, { rootMargin: '0px 0px -50px 0px', threshold: 0.08 });
 
-    document.querySelectorAll('.scroll-reveal').forEach(el => {
-      observer.observe(el);
-    });
+    document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
   }
 });

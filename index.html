@@ -4,15 +4,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Physics For Fun — Practical Skills Pre-Test</title>
+  <title>Physics For Fun — Practical Skills Post-Test</title>
   <meta name="description"
-    content="A diagnostic pre-test for Physics Practical Skills — Class 11 & 12. Designed by Dinesh Nagar, UMS Physics Teacher at Sandipani Vidyalaya Sabakheda." />
+    content="A diagnostic post-test for Physics Practical Skills — Class 11 & 12. Designed by Dinesh Nagar, UMS Physics Teacher at Sandipani Vidyalaya Sabakheda." />
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚗️</text></svg>" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="css/style.css?v=1.1" />
+  <link rel="stylesheet" href="css/style.css?v=2.0" />
 </head>
 
 <body>
@@ -28,7 +28,7 @@
   <!-- Hero -->
   <section class="hero fade-up">
     <div class="hero-badge">🎓 Teacher Training Programme </div>
-    <h1>Physics Practical Skills<br><span class="gradient-text">Pre-Test Assessment</span></h1>
+    <h1>Physics Practical Skills<br><span class="gradient-text">Post-Test Assessment</span></h1>
     <p>A diagnostic quiz covering Class 11 &amp; 12 physics practical techniques, instruments, and experimental methods.
     </p>
 
@@ -55,9 +55,24 @@
   <div class="container">
     <div class="card fade-up fade-up-2">
       <h2 style="margin-bottom:6px;">Enter Your Details</h2>
-      <p style="margin-bottom:28px;">Fill in your name and email to begin the test.</p>
+      <p style="margin-bottom:28px;">Fill in your name and email to begin the post-test. Enter your mobile or email from the pre-test for quick auto-fill.</p>
+
+      <!-- Auto-fill toast -->
+      <div id="autofillToast" style="display:none;padding:10px 16px;border-radius:10px;margin-bottom:18px;
+           background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:var(--green);
+           font-size:0.85rem;font-weight:500;animation:fadeUp 0.3s ease both;">
+        ✅ Pre-test record found — details auto-filled!
+      </div>
 
       <form id="startForm" novalidate>
+        <div class="form-group">
+          <label for="mobileInput">Mobile Number * <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.75rem;color:var(--text-muted);">(enter to auto-fill)</span></label>
+          <input type="tel" id="mobileInput" placeholder="e.g. 1234567890" required autocomplete="tel" maxlength="15" />
+        </div>
+        <div class="form-group">
+          <label for="emailInput">Email Address * <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.75rem;color:var(--text-muted);">(or enter email to auto-fill)</span></label>
+          <input type="email" id="emailInput" placeholder="e.g. ravi@school.edu" required autocomplete="email" />
+        </div>
         <div class="form-group">
           <label for="nameInput">Full Name *</label>
           <input type="text" id="nameInput" placeholder="e.g. Ravi Kumar" required autocomplete="name" />
@@ -67,21 +82,22 @@
           <input type="text" id="uniqueidInput" placeholder="e.g. aq123" required autocomplete="off" />
         </div>
         <div class="form-group">
-          <label for="mobileInput">Mobile Number *</label>
-          <input type="tel" id="mobileInput" placeholder="e.g. 1234567890" required autocomplete="tel" maxlength="15" />
-        </div>
-        <div class="form-group">
           <label for="schoolInput">School Name *</label>
           <input type="text" id="schoolInput" placeholder="e.g. Govt. HSS Sabakheda" required
             autocomplete="organization" />
         </div>
         <div class="form-group">
-          <label for="emailInput">Email Address *</label>
-          <input type="email" id="emailInput" placeholder="e.g. ravi@school.edu" required autocomplete="email" />
+          <label for="langSelect">🌐 Question Language / प्रश्न भाषा *</label>
+          <select id="langSelect" style="width:100%;padding:12px 16px;background:var(--bg2);color:var(--text);
+                  border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.95rem;
+                  cursor:pointer;outline:none;transition:border-color 0.2s;">
+            <option value="hi">हिन्दी (Hindi)</option>
+            <option value="en">English</option>
+          </select>
         </div>
         <div id="formError" style="color:var(--red);font-size:0.88rem;margin-bottom:16px;display:none;"></div>
         <button type="submit" class="btn btn-primary" id="startBtn" style="width:100%;font-size:1rem;padding:15px;">
-          Start Test →
+          Start Post-Test →
         </button>
       </form>
     </div>
@@ -102,7 +118,7 @@
           <span class="num">2.</span>
           <div class="text">
             You have <strong style="color:var(--text);">45 minutes</strong> to complete the test. The timer starts when
-            you click "Start Test".
+            you click "Start Post-Test".
           </div>
         </li>
         <li>
@@ -114,7 +130,7 @@
         <li>
           <span class="num">4.</span>
           <div class="text">
-            Your score will be shown immediately after submission.
+            Your score will be shown immediately after submission, along with a comparison to your pre-test result.
           </div>
         </li>
         <li>
@@ -130,7 +146,7 @@
 
   <!-- Footer -->
   <footer class="site-footer">
-    <div>⚗️ <strong>Physics For Fun</strong> &bull; Physics Practical Skills Pre-Test</div>
+    <div>⚗️ <strong>Physics For Fun</strong> &bull; Physics Practical Skills Post-Test</div>
     <div style="margin-top:4px;">
       Designed &amp; created by
       <a href="about.html"><strong>Dinesh Nagar</strong></a> &bull;
@@ -147,15 +163,66 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="js/firebase-config.js?v=1.1"></script>
-  <script src="js/app.js?v=1.1"></script>
+  <script src="js/firebase-config.js?v=2.0"></script>
+  <script src="js/app.js?v=2.0"></script>
   <script>
-    // Clear admin session if the user returns to the home page
+    // Clear admin session and previous quiz states if the user returns to the home page
     sessionStorage.removeItem('admin_auth');
+    sessionStorage.removeItem('quiz_pretest_id');
+    sessionStorage.removeItem('quiz_last_submission');
+    if (typeof _SESSION_KEYS !== 'undefined') {
+      _SESSION_KEYS.forEach(k => sessionStorage.removeItem(`quiz_pending_${k}`));
+    }
 
     const form = document.getElementById('startForm');
     const errEl = document.getElementById('formError');
 
+    // ── Auto-fill: debounced lookup on mobile and email blur ──
+    let autoFillDone = false;
+
+    async function tryAutoFill(field, value) {
+      if (autoFillDone || !value) return;
+      const match = await lookupPreTestByField(field, value);
+      if (match && !autoFillDone) {
+        autoFillDone = true;
+        // Fill all other fields from the pre-test record
+        if (match.name)     document.getElementById('nameInput').value = match.name;
+        if (match.uniqueid) document.getElementById('uniqueidInput').value = match.uniqueid;
+        if (match.mobile)   document.getElementById('mobileInput').value = match.mobile;
+        if (match.school)   document.getElementById('schoolInput').value = match.school;
+        if (match.email)    document.getElementById('emailInput').value = match.email;
+        // Store pre-test ID for comparison on result page
+        sessionStorage.setItem('quiz_pretest_id', match.id);
+        // Show toast
+        document.getElementById('autofillToast').style.display = 'block';
+      }
+    }
+
+    let mobileTimer, emailTimer;
+    document.getElementById('mobileInput').addEventListener('blur', () => {
+      const val = document.getElementById('mobileInput').value.trim();
+      if (/^\d{10,15}$/.test(val)) tryAutoFill('mobile', val);
+    });
+    document.getElementById('mobileInput').addEventListener('input', () => {
+      clearTimeout(mobileTimer);
+      const val = document.getElementById('mobileInput').value.trim();
+      if (/^\d{10,15}$/.test(val)) {
+        mobileTimer = setTimeout(() => tryAutoFill('mobile', val), 600);
+      }
+    });
+    document.getElementById('emailInput').addEventListener('blur', () => {
+      const val = document.getElementById('emailInput').value.trim();
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) tryAutoFill('email', val);
+    });
+    document.getElementById('emailInput').addEventListener('input', () => {
+      clearTimeout(emailTimer);
+      const val = document.getElementById('emailInput').value.trim();
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+        emailTimer = setTimeout(() => tryAutoFill('email', val), 600);
+      }
+    });
+
+    // ── Form submission ──
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const name = document.getElementById('nameInput').value.trim();
@@ -196,6 +263,9 @@
       }
 
       errEl.style.display = 'none';
+      // Store language preference before navigating
+      const lang = document.getElementById('langSelect').value;
+      sessionStorage.setItem('quiz_language', lang);
       savePendingUser(name, uniqueid, mobile, school, email);
       window.location.href = 'quiz.html';
     });

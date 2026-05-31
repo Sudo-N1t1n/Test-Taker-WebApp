@@ -4,14 +4,90 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Result — Physics For Fun</title>
-  <meta name="description" content="See your Physics Practical Skills Pre-Test results." />
+  <title>Your Result — Physics For Fun Post-Test</title>
+  <meta name="description" content="See your Physics Practical Skills Post-Test results and pre-test comparison." />
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚗️</text></svg>" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="css/style.css?v=1.1" />
+  <link rel="stylesheet" href="css/style.css?v=2.0" />
+  <style>
+    .comparison-card {
+      background: rgba(16,185,129,0.06);
+      border: 1.5px solid rgba(16,185,129,0.2);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-top: 20px;
+      animation: fadeUp 0.5s ease both;
+      animation-delay: 0.2s;
+    }
+    .comparison-grid {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .comparison-item {
+      text-align: center;
+      min-width: 100px;
+    }
+    .comparison-item .label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .comparison-item .score-big {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .comparison-item .score-pct {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .comparison-arrow {
+      font-size: 2rem;
+      color: var(--text-muted);
+    }
+    .improvement-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-top: 12px;
+    }
+    .improvement-badge.positive {
+      background: rgba(34,197,94,0.15);
+      color: var(--green);
+      border: 1px solid rgba(34,197,94,0.3);
+    }
+    .improvement-badge.negative {
+      background: rgba(244,63,94,0.15);
+      color: var(--red);
+      border: 1px solid rgba(244,63,94,0.3);
+    }
+    .improvement-badge.neutral {
+      background: rgba(245,158,11,0.15);
+      color: var(--amber);
+      border: 1px solid rgba(245,158,11,0.3);
+    }
+    .no-pretest {
+      text-align: center;
+      padding: 16px;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+  </style>
 </head>
 
 <body>
@@ -95,7 +171,8 @@
         </div>
       </div>
 
-
+      <!-- Pre-Test vs Post-Test Comparison -->
+      <div id="comparisonSection"></div>
 
       <div class="text-center mt-32">
         <a href="index.html" class="btn btn-primary">Take the Test Again →</a>
@@ -113,16 +190,27 @@
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="js/firebase-config.js?v=1.1"></script>
-  <script src="js/app.js?v=1.1"></script>
+  <script src="js/firebase-config.js?v=2.0"></script>
+  <script src="js/app.js?v=2.0"></script>
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const resultId = urlParams.get('id');
 
     if (resultId) {
-      window.db.collection(CONFIG.firestoreCollection).doc(resultId).get()
+      // Try post-test collection first, then fall back to pre-test
+      window.db.collection(CONFIG.firestoreCollectionPost).doc(resultId).get()
         .then(doc => {
           if (doc.exists) {
+            renderResult(doc.data());
+            return null; // Handled
+          } else {
+            // Fallback: try pre-test collection for shared links
+            return window.db.collection(CONFIG.firestoreCollection).doc(resultId).get();
+          }
+        })
+        .then(doc => {
+          if (doc === null) return; // Handled in previous step
+          if (doc && doc.exists) {
             renderResult(doc.data());
           } else {
             showNotFound();
@@ -197,7 +285,82 @@
       const secs = submission.timeTaken % 60;
       document.getElementById('summaryTime').textContent = `${mins}m ${secs}s`;
 
+      // Load pre-test comparison
+      loadComparison(submission);
+    }
 
+    async function loadComparison(postSubmission) {
+      const section = document.getElementById('comparisonSection');
+      const preTestId = postSubmission.preTestId;
+
+      if (!preTestId) {
+        section.innerHTML = `
+          <div class="comparison-card">
+            <h3 style="text-align:center;margin-bottom:8px;">📊 Pre-Test vs Post-Test</h3>
+            <div class="no-pretest">
+              No pre-test record was linked to this submission. Comparison is not available.
+            </div>
+          </div>`;
+        return;
+      }
+
+      section.innerHTML = `
+        <div class="comparison-card">
+          <h3 style="text-align:center;margin-bottom:8px;">📊 Pre-Test vs Post-Test</h3>
+          <div class="no-pretest">Loading pre-test data…</div>
+        </div>`;
+
+      const preTest = await fetchPreTestById(preTestId);
+
+      if (!preTest) {
+        section.innerHTML = `
+          <div class="comparison-card">
+            <h3 style="text-align:center;margin-bottom:8px;">📊 Pre-Test vs Post-Test</h3>
+            <div class="no-pretest">Could not load pre-test record for comparison.</div>
+          </div>`;
+        return;
+      }
+
+      const prePct = Math.round((preTest.score / preTest.total) * 100);
+      const postPct = Math.round((postSubmission.score / postSubmission.total) * 100);
+      const diff = postSubmission.score - preTest.score;
+      const diffPct = postPct - prePct;
+
+      let badgeClass, badgeText, badgeIcon;
+      if (diff > 0) {
+        badgeClass = 'positive';
+        badgeIcon = '📈';
+        badgeText = `+${diff} marks (+${diffPct}%) Improvement!`;
+      } else if (diff < 0) {
+        badgeClass = 'negative';
+        badgeIcon = '📉';
+        badgeText = `${diff} marks (${diffPct}%) — Keep practising!`;
+      } else {
+        badgeClass = 'neutral';
+        badgeIcon = '➡️';
+        badgeText = `Same score — no change`;
+      }
+
+      section.innerHTML = `
+        <div class="comparison-card">
+          <h3 style="text-align:center;margin-bottom:16px;">📊 Pre-Test vs Post-Test Comparison</h3>
+          <div class="comparison-grid">
+            <div class="comparison-item">
+              <div class="label">Pre-Test</div>
+              <div class="score-big" style="color:var(--text-muted);">${preTest.score}<span style="font-size:1rem;font-weight:400;">/${preTest.total}</span></div>
+              <div class="score-pct">${prePct}%</div>
+            </div>
+            <div class="comparison-arrow">→</div>
+            <div class="comparison-item">
+              <div class="label">Post-Test</div>
+              <div class="score-big" style="color:var(--indigo-lt);">${postSubmission.score}<span style="font-size:1rem;font-weight:400;">/${postSubmission.total}</span></div>
+              <div class="score-pct">${postPct}%</div>
+            </div>
+          </div>
+          <div style="text-align:center;">
+            <div class="improvement-badge ${badgeClass}">${badgeIcon} ${badgeText}</div>
+          </div>
+        </div>`;
     }
   </script>
 </body>
