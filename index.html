@@ -170,6 +170,7 @@
     sessionStorage.removeItem('admin_auth');
     sessionStorage.removeItem('quiz_pretest_id');
     sessionStorage.removeItem('quiz_last_submission');
+    sessionStorage.removeItem('quiz_language');
     if (typeof _SESSION_KEYS !== 'undefined') {
       _SESSION_KEYS.forEach(k => sessionStorage.removeItem(`quiz_pending_${k}`));
     }

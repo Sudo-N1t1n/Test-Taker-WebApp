@@ -450,7 +450,8 @@
           { includeMetadataChanges: false },
           (snapshot) => {
             try {
-              preSubmissions = sortSubmissions(snapshot.docs.map(d => d.data()));
+              retryCount = 0;
+              preSubmissions = _sortByDate(snapshot.docs.map(d => d.data()));
               renderPreStats(preSubmissions);
               renderChart(preSubmissions, 'chartBarsPre');
               renderPreTableFromCache();
@@ -473,7 +474,7 @@
           (snapshot) => {
             try {
               retryCount = 0;
-              postSubmissions = sortSubmissions(snapshot.docs.map(d => d.data()));
+              postSubmissions = _sortByDate(snapshot.docs.map(d => d.data()));
               renderPostStats(postSubmissions);
               renderChart(postSubmissions, 'chartBarsPost');
               renderPostTableFromCache();
@@ -495,13 +496,6 @@
         ` · <a href="#" onclick="retryListener();return false;" style="color:inherit;">Refresh</a>`);
     }
 
-    function sortSubmissions(arr) {
-      return arr.slice().sort((a, b) => {
-        const ta = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
-        const tb = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
-        return tb - ta;
-      });
-    }
 
     function retryListener() { retryCount = 0; startLiveListeners(); }
 

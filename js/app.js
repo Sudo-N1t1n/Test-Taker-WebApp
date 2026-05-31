@@ -11,7 +11,6 @@ const CONFIG = {
   timerMinutes: 45,
   passMark: 10,
   totalQuestions: 25,
-  storageKey: 'quiz_submissions',
   firestoreCollection: 'submissions',
   firestoreCollectionPost: 'submissions_post',
 };
