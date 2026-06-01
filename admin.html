@@ -101,6 +101,7 @@
     }
     .cmp-bar.pre { background: rgba(148,163,184,0.5); }
     .cmp-bar.post { background: linear-gradient(180deg, var(--indigo-lt), var(--indigo-dk)); }
+    .cmp-bar.b2 { background: linear-gradient(180deg, var(--cyan), #7c3aed); }
     .cmp-bar-label { font-size: 0.55rem; color: var(--text-muted); white-space: nowrap; }
     .cmp-legend {
       display: flex; gap: 16px; font-size: 0.8rem; margin-bottom: 14px; flex-wrap: wrap;
@@ -185,8 +186,9 @@
 
       <!-- ═══════════ TAB BAR ═══════════ -->
       <div class="tab-bar" id="tabBar">
-        <button class="tab-btn active" data-tab="pretest" onclick="switchTab('pretest')">📋 Pre-Test</button>
-        <button class="tab-btn" data-tab="posttest" onclick="switchTab('posttest')">📝 Post-Test</button>
+        <button class="tab-btn active" data-tab="pretest" onclick="switchTab('pretest')">📋 Pre-Test (B1)</button>
+        <button class="tab-btn" data-tab="posttest" onclick="switchTab('posttest')">📝 Post-Test (B1)</button>
+        <button class="tab-btn" data-tab="batch2" onclick="switchTab('batch2')">📋 Pre-Test (B2)</button>
         <button class="tab-btn" data-tab="comparison" onclick="switchTab('comparison')">📊 Comparison</button>
       </div>
 
@@ -243,7 +245,7 @@
                 <tr>
                   <th>#</th><th>Name</th>
                   <th class="col-email">Unique ID</th><th class="col-email">Mobile</th>
-                  <th class="col-email">School</th><th class="col-email">Email</th>
+                  <th class="col-email">School</th><th class="col-email">District</th><th class="col-email">Email</th>
                   <th>Score</th><th>%</th><th>Result</th>
                   <th class="col-time">Time</th><th>Submitted</th><th>Details</th>
                 </tr>
@@ -315,7 +317,7 @@
                 <tr>
                   <th>#</th><th>Name</th>
                   <th class="col-email">Unique ID</th><th class="col-email">Mobile</th>
-                  <th class="col-email">School</th><th class="col-email">Email</th>
+                  <th class="col-email">School</th><th class="col-email">District</th><th class="col-email">Email</th>
                   <th>Score</th><th>%</th><th>Result</th>
                   <th class="col-time">Time</th><th>Submitted</th><th>Details</th>
                 </tr>
@@ -334,18 +336,94 @@
         </div>
       </div>
 
+      <!-- ═══════════ TAB: PRE-TEST BATCH 2 ═══════════ -->
+      <div class="tab-panel" id="tab-batch2">
+
+        <div class="stat-grid fade-up">
+          <div class="stat-card">
+            <div class="stat-label">Total Submissions</div>
+            <div class="stat-value cyan" id="statTotalB2">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Average Score</div>
+            <div class="stat-value amber" id="statAvgB2">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Highest Score</div>
+            <div class="stat-value green" id="statHighB2">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pass Rate</div>
+            <div class="stat-value" id="statPassB2">—</div>
+          </div>
+        </div>
+
+        <!-- Batch 2 Chart -->
+        <div class="card fade-up fade-up-1 chart-section">
+          <h3>Per-Question Correct %
+            <span style="font-size:0.73rem;font-weight:400;color:var(--text-muted);">— scroll to see all 25</span>
+          </h3>
+          <p style="font-size:0.8rem;margin-top:2px;margin-bottom:14px;">
+            <span style="color:var(--green);">■</span> ≥70%&nbsp;
+            <span style="color:var(--amber);">■</span> 40–69%&nbsp;
+            <span style="color:var(--red);">■</span> &lt;40%
+          </p>
+          <div class="chart-bars" id="chartBarsB2">
+            <div style="color:var(--text-muted);font-size:0.85rem;padding:16px;">Waiting for submissions…</div>
+          </div>
+        </div>
+
+        <!-- Batch 2 Table -->
+        <div class="fade-up fade-up-2">
+          <div class="flex items-center justify-between mb-16" style="flex-wrap:wrap;gap:12px;">
+            <h3 id="tableHeadingB2">Pre-Test Batch 2 Submissions</h3>
+            <input type="text" id="searchInputB2" placeholder="🔍 Search…" style="background:var(--bg2);border:1px solid var(--border);border-radius:50px;
+                     padding:9px 18px;color:var(--text);font-family:inherit;font-size:0.86rem;
+                     outline:none;width:100%;max-width:280px;transition:border-color 0.2s;"
+              oninput="renderB2TableFromCache()" onfocus="this.style.borderColor='var(--indigo)'"
+              onblur="this.style.borderColor='var(--border)'" />
+          </div>
+          <div class="table-wrap">
+            <table id="b2Table" style="display:none;">
+              <thead>
+                <tr>
+                  <th>#</th><th>Name</th>
+                  <th class="col-email">Unique ID</th><th class="col-email">Mobile</th>
+                  <th class="col-email">School</th><th class="col-email">District</th><th class="col-email">Email</th>
+                  <th>Score</th><th>%</th><th>Result</th>
+                  <th class="col-time">Time</th><th>Submitted</th><th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="b2TableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="emptyStateB2" style="display:none;">
+            <div class="empty-icon">📭</div>
+            <h3>No Batch 2 pre-test submissions yet</h3>
+            <p style="margin-top:6px;">Batch 2 pre-test submissions will appear here.</p>
+          </div>
+          <div style="text-align:right;margin-top:10px;">
+            <button class="btn btn-danger" style="padding:8px 14px;font-size:0.78rem;" id="clearB2Btn" onclick="clearB2Data()">🗑️ Clear Batch 2 Data</button>
+          </div>
+        </div>
+      </div>
+
       <!-- ═══════════ TAB: COMPARISON ═══════════ -->
       <div class="tab-panel" id="tab-comparison">
 
         <!-- Side-by-side summary stats -->
-        <div class="stat-grid fade-up" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="stat-grid fade-up" style="grid-template-columns: repeat(3, 1fr);">
           <div class="stat-card" style="border-top:3px solid var(--text-muted);">
-            <div class="stat-label">Pre-Test Avg Score</div>
+            <div class="stat-label">Pre-Test (B1) Avg Score</div>
             <div class="stat-value" style="color:var(--text-muted);" id="cmpAvgPre">—</div>
           </div>
           <div class="stat-card" style="border-top:3px solid var(--indigo-lt);">
-            <div class="stat-label">Post-Test Avg Score</div>
+            <div class="stat-label">Post-Test (B1) Avg Score</div>
             <div class="stat-value" style="color:var(--indigo-lt);" id="cmpAvgPost">—</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid var(--cyan);">
+            <div class="stat-label">Pre-Test (B2) Avg Score</div>
+            <div class="stat-value" style="color:var(--cyan);" id="cmpAvgB2">—</div>
           </div>
         </div>
 
@@ -353,11 +431,12 @@
         <div class="card fade-up fade-up-1" style="margin-bottom:20px;">
           <h3 style="margin-bottom:4px;">Per-Question Comparison</h3>
           <p style="font-size:0.8rem;margin-bottom:14px;color:var(--text-muted);">
-            Side-by-side correct % for each question across both tests.
+            Side-by-side correct % for each question across all three tests.
           </p>
           <div class="cmp-legend">
-            <span><span class="cmp-legend-dot" style="background:rgba(148,163,184,0.5);"></span> Pre-Test</span>
-            <span><span class="cmp-legend-dot" style="background:var(--indigo-lt);"></span> Post-Test</span>
+            <span><span class="cmp-legend-dot" style="background:rgba(148,163,184,0.5);"></span> Pre-Test (B1)</span>
+            <span><span class="cmp-legend-dot" style="background:var(--indigo-lt);"></span> Post-Test (B1)</span>
+            <span><span class="cmp-legend-dot" style="background:var(--cyan);"></span> Pre-Test (B2)</span>
           </div>
           <div class="cmp-chart-container" id="cmpChart">
             <div style="color:var(--text-muted);font-size:0.85rem;padding:16px;">Waiting for data…</div>
@@ -371,7 +450,7 @@
     <footer class="site-footer">
       <div>⚗️ <strong>Physics For Fun</strong> — Admin Dashboard</div>
       <div style="margin-top:4px;">
-        Quiz by <strong>Dinesh Nagar</strong> &bull; UMS Physics Teacher, CM RISE Sabakheda &bull;
+        Quiz by <strong>Dinesh Nagar</strong> &bull; UMS Physics Teacher, CM RISE Sabakheda, Mandsaur &bull;
         <a href="mailto:Dineshnagar76@gmail.com">Dineshnagar76@gmail.com</a>
       </div>
     </footer>
@@ -432,14 +511,17 @@
     // ── Real-time listeners ──
     let preSubmissions = [];
     let postSubmissions = [];
+    let b2Submissions = [];
     let unsubPre = null;
     let unsubPost = null;
+    let unsubB2 = null;
     let retryTimer = null;
     let retryCount = 0;
 
     function startLiveListeners() {
       if (unsubPre) { unsubPre(); unsubPre = null; }
       if (unsubPost) { unsubPost(); unsubPost = null; }
+      if (unsubB2) { unsubB2(); unsubB2 = null; }
       if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
 
       showBanner('info', '⏳ Connecting to Firestore…');
@@ -488,11 +570,33 @@
           },
           (err) => { console.error('Post-test snapshot error:', err); scheduleRetry(err); }
         );
+
+      // Batch 2 pre-test listener
+      unsubB2 = window.db.collection(CONFIG.firestoreCollectionPreBatch2)
+        .onSnapshot(
+          { includeMetadataChanges: false },
+          (snapshot) => {
+            try {
+              retryCount = 0;
+              b2Submissions = _sortByDate(snapshot.docs.map(d => d.data()));
+              renderB2Stats(b2Submissions);
+              renderChart(b2Submissions, 'chartBarsB2');
+              renderB2TableFromCache();
+              if (document.getElementById('tab-comparison').classList.contains('active')) {
+                renderComparisonChart();
+              }
+              updateBanner();
+            } catch (e) {
+              console.error('Batch 2 render error:', e);
+            }
+          },
+          (err) => { console.error('Batch 2 snapshot error:', err); scheduleRetry(err); }
+        );
     }
 
     function updateBanner() {
       showBanner('ok',
-        `✅ Live — <strong>${preSubmissions.length}</strong> pre-test, <strong>${postSubmissions.length}</strong> post-test submissions` +
+        `✅ Live — <strong>${preSubmissions.length}</strong> pre-test (B1), <strong>${postSubmissions.length}</strong> post-test (B1), <strong>${b2Submissions.length}</strong> pre-test (B2)` +
         ` · <a href="#" onclick="retryListener();return false;" style="color:inherit;">Refresh</a>`);
     }
 
@@ -548,6 +652,12 @@ service cloud.firestore {
       allow delete: if true;
       allow update: if false;
     }
+    match /submissions_pre_batch2/{submissionId} {
+      allow create: if true;
+      allow read:   if true;
+      allow delete: if true;
+      allow update: if false;
+    }
   }
 }`;
       navigator.clipboard.writeText(rules)
@@ -577,6 +687,7 @@ service cloud.firestore {
     }
     function renderPreStats(s) { renderStatsGeneric(s, 'Pre'); }
     function renderPostStats(s) { renderStatsGeneric(s, 'Post'); }
+    function renderB2Stats(s) { renderStatsGeneric(s, 'B2'); }
 
     // ── Per-question chart (reusable) ──
     function renderChart(submissions, containerId) {
@@ -618,40 +729,49 @@ service cloud.firestore {
       // Update top-level comparison stat cards
       const avgPre = preSubmissions.length ? (preSubmissions.reduce((a,s) => a + s.score, 0) / preSubmissions.length) : 0;
       const avgPost = postSubmissions.length ? (postSubmissions.reduce((a,s) => a + s.score, 0) / postSubmissions.length) : 0;
+      const avgB2 = b2Submissions.length ? (b2Submissions.reduce((a,s) => a + s.score, 0) / b2Submissions.length) : 0;
       document.getElementById('cmpAvgPre').textContent = preSubmissions.length ? avgPre.toFixed(1) + '/25' : '—';
       document.getElementById('cmpAvgPost').textContent = postSubmissions.length ? avgPost.toFixed(1) + '/25' : '—';
+      document.getElementById('cmpAvgB2').textContent = b2Submissions.length ? avgB2.toFixed(1) + '/25' : '—';
 
-      if (preSubmissions.length === 0 && postSubmissions.length === 0) {
-        chartEl.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;padding:16px;">Waiting for data from both tests…</div>';
+      if (preSubmissions.length === 0 && postSubmissions.length === 0 && b2Submissions.length === 0) {
+        chartEl.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;padding:16px;">Waiting for data from submissions…</div>';
         return;
       }
 
       const totalPre = preSubmissions.length || 1;
       const totalPost = postSubmissions.length || 1;
+      const totalB2 = b2Submissions.length || 1;
       const preCounts = new Array(25).fill(0);
       const postCounts = new Array(25).fill(0);
+      const b2Counts = new Array(25).fill(0);
       preSubmissions.forEach(s => (s.details || []).forEach((d, i) => { if (d.isCorrect) preCounts[i]++; }));
       postSubmissions.forEach(s => (s.details || []).forEach((d, i) => { if (d.isCorrect) postCounts[i]++; }));
+      b2Submissions.forEach(s => (s.details || []).forEach((d, i) => { if (d.isCorrect) b2Counts[i]++; }));
 
       const maxPct = Math.max(
         ...preCounts.map(c => Math.round((c / totalPre) * 100)),
         ...postCounts.map(c => Math.round((c / totalPost) * 100)),
+        ...b2Counts.map(c => Math.round((c / totalB2) * 100)),
         1
       );
 
       for (let i = 0; i < 25; i++) {
         const prePct = preSubmissions.length ? Math.round((preCounts[i] / totalPre) * 100) : 0;
         const postPct = postSubmissions.length ? Math.round((postCounts[i] / totalPost) * 100) : 0;
+        const b2Pct = b2Submissions.length ? Math.round((b2Counts[i] / totalB2) * 100) : 0;
         const preH = Math.max(3, Math.round((prePct / maxPct) * 160));
         const postH = Math.max(3, Math.round((postPct / maxPct) * 160));
+        const b2H = Math.max(3, Math.round((b2Pct / maxPct) * 160));
 
         const group = document.createElement('div');
         group.className = 'cmp-bar-group';
-        group.title = `Q${i+1}: Pre ${prePct}% | Post ${postPct}%`;
+        group.title = `Q${i+1}: Pre(B1) ${prePct}% | Post(B1) ${postPct}% | Pre(B2) ${b2Pct}%`;
         group.innerHTML = `
           <div class="cmp-bars">
             <div class="cmp-bar pre" style="height:${preH}px;"></div>
             <div class="cmp-bar post" style="height:${postH}px;"></div>
+            <div class="cmp-bar b2" style="height:${b2H}px;"></div>
           </div>
           <div class="cmp-bar-label">Q${i+1}</div>`;
         chartEl.appendChild(group);
@@ -660,30 +780,29 @@ service cloud.firestore {
       // Summary stats
       const passRatePre = preSubmissions.length ? Math.round((preSubmissions.filter(s=>s.passed).length / preSubmissions.length)*100) : 0;
       const passRatePost = postSubmissions.length ? Math.round((postSubmissions.filter(s=>s.passed).length / postSubmissions.length)*100) : 0;
-      const avgDiff = (avgPost - avgPre).toFixed(1);
-      const passDiff = passRatePost - passRatePre;
+      const passRateB2 = b2Submissions.length ? Math.round((b2Submissions.filter(s=>s.passed).length / b2Submissions.length)*100) : 0;
 
       summaryEl.innerHTML = `
         <div class="cmp-summary-card">
-          <div class="cmp-summary-label">Pre-Test Avg</div>
+          <div class="cmp-summary-label">Pre-Test (B1) Avg</div>
           <div class="cmp-summary-value" style="color:var(--text-muted);">${avgPre.toFixed(1)}/25</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Pass Rate: ${passRatePre}%</div>
         </div>
         <div class="cmp-summary-card">
-          <div class="cmp-summary-label">Post-Test Avg</div>
+          <div class="cmp-summary-label">Post-Test (B1) Avg</div>
           <div class="cmp-summary-value" style="color:var(--indigo-lt);">${avgPost.toFixed(1)}/25</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Pass Rate: ${passRatePost}%</div>
         </div>
         <div class="cmp-summary-card">
-          <div class="cmp-summary-label">Score Change</div>
-          <div class="cmp-summary-value" style="color:${avgDiff >= 0 ? 'var(--green)' : 'var(--red)'};">${avgDiff >= 0 ? '+' : ''}${avgDiff}</div>
-        </div>
-        <div class="cmp-summary-card">
-          <div class="cmp-summary-label">Pass Rate Change</div>
-          <div class="cmp-summary-value" style="color:${passDiff >= 0 ? 'var(--green)' : 'var(--red)'};">${passDiff >= 0 ? '+' : ''}${passDiff}%</div>
+          <div class="cmp-summary-label">Pre-Test (B2) Avg</div>
+          <div class="cmp-summary-value" style="color:var(--cyan);">${avgB2.toFixed(1)}/25</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Pass Rate: ${passRateB2}%</div>
         </div>`;
     }
 
     // ── Table rendering (generic) ──
-    function renderTableGeneric(all, searchId, headingId, tableId, tbodyId, emptyId, isPostTest) {
+    function renderTableGeneric(all, searchId, headingId, tableId, tbodyId, emptyId, isPostTest, collection) {
+      collection = collection || (isPostTest ? 'post' : 'pre');
       const query = (document.getElementById(searchId).value || '').toLowerCase();
       const filtered = query
         ? all.filter(s =>
@@ -691,13 +810,14 @@ service cloud.firestore {
           (s.email || '').toLowerCase().includes(query) ||
           (s.uniqueid || '').toLowerCase().includes(query) ||
           (s.school || '').toLowerCase().includes(query) ||
+          (s.district || '').toLowerCase().includes(query) ||
           (s.mobile || '').includes(query))
         : all;
 
       const tbody = document.getElementById(tbodyId);
       const table = document.getElementById(tableId);
       const empty = document.getElementById(emptyId);
-      const label = isPostTest ? 'Post-Test' : 'Pre-Test';
+      const label = isPostTest ? 'Post-Test' : (collection === 'b2' ? 'Pre-Test (B2)' : 'Pre-Test');
 
       document.getElementById(headingId).textContent =
         query ? `${label} results for "${query}" (${filtered.length})` : `${label} Submissions (${all.length})`;
@@ -712,7 +832,7 @@ service cloud.firestore {
         const pct = Math.round((s.score / s.total) * 100);
         const mins = Math.floor(s.timeTaken / 60);
         const secs = s.timeTaken % 60;
-        const collection = isPostTest ? 'post' : 'pre';
+        const collection_id = collection;
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td style="color:var(--text-muted);">${idx + 1}</td>
@@ -720,6 +840,7 @@ service cloud.firestore {
           <td class="col-email" style="color:var(--text-muted);font-size:0.83rem;">${escHtml(s.uniqueid || '—')}</td>
           <td class="col-email" style="color:var(--text-muted);font-size:0.83rem;">${escHtml(s.mobile || '—')}</td>
           <td class="col-email" style="color:var(--text-muted);font-size:0.83rem;">${escHtml(s.school || '—')}</td>
+          <td class="col-email" style="color:var(--text-muted);font-size:0.83rem;">${escHtml(s.district || '—')}</td>
           <td class="col-email" style="color:var(--text-muted);font-size:0.83rem;">${escHtml(s.email)}</td>
           <td class="score-cell">${s.score}/${s.total}</td>
           <td>${pct}%</td>
@@ -728,7 +849,7 @@ service cloud.firestore {
           <td style="font-size:0.8rem;color:var(--text-muted);">${formatDate(s.submittedAt)}</td>
           <td>
             <div style="display:flex;gap:6px;">
-              <button class="btn btn-secondary" style="padding:6px 12px;font-size:0.78rem;" onclick="openDetail('${escHtml(s.id)}','${collection}')">
+              <button class="btn btn-secondary" style="padding:6px 12px;font-size:0.78rem;" onclick="openDetail('${escHtml(s.id)}','${collection_id}')">
                 View
               </button>
               <a href="result.html?id=${escHtml(s.id)}" target="_blank" class="btn btn-secondary" style="padding:6px 12px;font-size:0.78rem;text-decoration:none;">
@@ -746,6 +867,9 @@ service cloud.firestore {
     function renderPostTableFromCache() {
       renderTableGeneric(postSubmissions, 'searchInputPost', 'tableHeadingPost', 'postTable', 'postTableBody', 'emptyStatePost', true);
     }
+    function renderB2TableFromCache() {
+      renderTableGeneric(b2Submissions, 'searchInputB2', 'tableHeadingB2', 'b2Table', 'b2TableBody', 'emptyStateB2', false, 'b2');
+    }
 
     function escHtml(str) {
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -753,13 +877,13 @@ service cloud.firestore {
 
     // ── Detail modal ──
     function openDetail(id, collection) {
-      const list = collection === 'post' ? postSubmissions : preSubmissions;
+      const list = collection === 'post' ? postSubmissions : (collection === 'b2' ? b2Submissions : preSubmissions);
       const s = list.find(sub => sub.id === id);
       if (!s) return;
       const pct = Math.round((s.score / s.total) * 100);
       const mins = Math.floor(s.timeTaken / 60);
       const secs = s.timeTaken % 60;
-      const label = collection === 'post' ? 'Post-Test' : 'Pre-Test';
+      const label = collection === 'post' ? 'Post-Test' : (collection === 'b2' ? 'Pre-Test (B2)' : 'Pre-Test');
       const labelColor = collection === 'post' ? 'color:var(--indigo-lt)' : 'color:var(--text-muted)';
       const breakdownHTML = (s.details || []).map((d, i) => {
         const q = QUESTIONS[i], ic = d.isCorrect;
@@ -784,6 +908,7 @@ service cloud.firestore {
           ${s.uniqueid ? `<span>🆔 ID: <strong style="color:var(--text);">${escHtml(s.uniqueid)}</strong></span>` : ''}
           ${s.mobile ? `<span>📞 Mobile: <strong style="color:var(--text);">${escHtml(s.mobile)}</strong></span>` : ''}
           ${s.school ? `<span>🏫 School: <strong style="color:var(--text);">${escHtml(s.school)}</strong></span>` : ''}
+          ${s.district ? `<span>📍 District: <strong style="color:var(--text);">${escHtml(s.district)}</strong></span>` : ''}
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
           <div class="pill">📊 Score: <span>${s.score}/${s.total} (${pct}%)</span></div>
@@ -829,6 +954,19 @@ service cloud.firestore {
         alert('✅ All post-test submissions deleted.');
       } catch (err) { console.error(err); alert('❌ Failed. Check console.'); }
       finally { btn.disabled = false; btn.textContent = '🗑️ Clear Post-Test Data'; }
+    }
+
+    async function clearB2Data() {
+      const total = b2Submissions.length;
+      if (total === 0) { alert('No Batch 2 data to clear.'); return; }
+      if (!confirm(`⚠️ Permanently delete all ${total} Batch 2 pre-test submission(s)?`)) return;
+      const btn = document.getElementById('clearB2Btn');
+      btn.disabled = true; btn.textContent = '⏳ Clearing…';
+      try {
+        await clearSubmissionsBatch2();
+        alert('✅ All Batch 2 pre-test submissions deleted.');
+      } catch (err) { console.error(err); alert('❌ Failed. Check console.'); }
+      finally { btn.disabled = false; btn.textContent = '🗑️ Clear Batch 2 Data'; }
     }
   </script>
 </body>

@@ -1,8 +1,8 @@
 # ⚗️ Physics For Fun — Practical Skills Assessment Platform
 
-A free, cloud-connected diagnostic assessment web app for **Class 11 & 12 Physics Practical Skills**, designed for the Teacher Training Programme at **Sandipani Vidyalaya Sabakheda**.
+A free, cloud-connected diagnostic assessment web app for **Class 11 & 12 Physics Practical Skills**, designed for the Teacher Training Programme at **Sandipani Vidyalaya Sabakheda, Mandsaur**.
 
-> **Created by:** Dinesh Nagar — UMS Physics Teacher, Sandipani Vidyalaya Sabakheda  
+> **Created by:** Dinesh Nagar — UMS Physics Teacher, Sandipani Vidyalaya Sabakheda, Mandsaur  
 > **Contact:** 📞 [9993355323](tel:9993355323) · ✉️ [Dineshnagar76@gmail.com](mailto:Dineshnagar76@gmail.com)
 
 ---
@@ -12,14 +12,15 @@ A free, cloud-connected diagnostic assessment web app for **Class 11 & 12 Physic
 | Feature | Description |
 |---|---|
 | **25-Question MCQ Test** | Physics practical skills covering instruments, error analysis, optics, electricity, and more |
-| **Pre-Test & Post-Test** | Separate data collections for before and after the training programme |
-| **Auto-Fill from Pre-Test** | Enter your phone or email to auto-fill registration details from a previous pre-test submission |
-| **Pre vs Post Comparison** | Students see a side-by-side score comparison on their result page after the post-test |
+| **Pre-Test & Post-Test** | Separate data collections for before and after the training programme (Batch 1 and Batch 2) |
+| **District Selection** | Choose your district from Mandsaur, Sagar, Panna, or Ratlam |
+| **Auto-Fill from Pre-Test** | Enter your phone or email to auto-fill registration details from a previous pre-test submission (Batch 1 only) |
+| **Pre vs Post Comparison** | Students see a side-by-side score comparison on their result page after the post-test (Batch 1 only) |
 | **Bilingual Support** | Questions available in both **Hindi** and **English** — selected at registration |
 | **45-Minute Timer** | Live countdown with a red warning in the last 5 minutes; auto-submits when time runs out |
 | **Instant Results** | Score, pass/fail status, and full per-question answer breakdown shown immediately |
 | **Cloud Storage** | All submissions saved to Firebase Firestore — visible across all devices in real-time |
-| **Admin Dashboard** | Password-protected live dashboard with **tabbed UI** (Pre-Test, Post-Test, Comparison) |
+| **Admin Dashboard** | Password-protected live dashboard with **tabbed UI** (Pre-Test B1, Post-Test B1, Pre-Test B2, Comparison) |
 | **Interactive Comparison Charts** | Side-by-side per-question bar charts comparing pre-test and post-test performance |
 | **Mobile Friendly** | Fully responsive design — works on phones, tablets, and desktops |
 | **No Backend Server** | Entirely serverless — hosted as a static site |
@@ -30,10 +31,10 @@ A free, cloud-connected diagnostic assessment web app for **Class 11 & 12 Physic
 
 | Page | URL | Description |
 |---|---|---|
-| Home / Registration | `index.html` | Enter details to start the post-test; auto-fill from pre-test via phone/email |
+| Home / Registration | `index.html` | Enter details & select district to start the pre-test |
 | Quiz | `quiz.html` | 25 MCQ questions with live progress bar and countdown timer |
-| Result | `result.html` | Score, breakdown, pass/fail, and pre-test vs post-test comparison |
-| Admin Dashboard | `admin.html` | Tabbed analytics — Pre-Test · Post-Test · Comparison (password: `admin123`) |
+| Result | `result.html` | Score, breakdown, pass/fail |
+| Admin Dashboard | `admin.html` | Tabbed analytics — Pre-Test B1 · Post-Test B1 · Pre-Test B2 · Comparison (password: `admin123`) |
 | About | `about.html` | Author info, tech stack, and platform overview |
 
 ---
@@ -45,7 +46,7 @@ A free, cloud-connected diagnostic assessment web app for **Class 11 & 12 Physic
 | **HTML5** | Page structure and semantic markup |
 | **CSS3 (Vanilla)** | Responsive design, animations, glassmorphism UI, emerald/violet theme |
 | **JavaScript (ES6+)** | Quiz logic, grading engine, timer, real-time UI |
-| **Firebase Firestore** | Cloud NoSQL database — dual collections (`submissions`, `submissions_post`) |
+| **Firebase Firestore** | Cloud NoSQL database — three collections (`submissions`, `submissions_post`, `submissions_pre_batch2`) |
 | **Firebase CDN SDK** | Client-side Firebase integration (compat v9.23.0) |
 | **Google Fonts (Inter)** | Modern, readable typography |
 
@@ -109,6 +110,12 @@ service cloud.firestore {
       allow delete: if true;
       allow update: if false;
     }
+    match /submissions_pre_batch2/{submissionId} {
+      allow create: if true;
+      allow read:   if true;
+      allow delete: if true;
+      allow update: if false;
+    }
   }
 }
 ```
@@ -130,9 +137,10 @@ Push to GitHub and connect to Netlify, or use any static hosting platform.
 - **URL:** `admin.html`
 - **Password:** `admin123`
 - **Tabs:**
-  - **📋 Pre-Test** — Stats, per-question chart, searchable table for pre-test submissions
-  - **📝 Post-Test** — Stats, per-question chart, searchable table for post-test submissions
-  - **📊 Comparison** — Side-by-side per-question bar chart, average score change, pass rate change
+  - **📋 Pre-Test (Batch 1)** — Stats, per-question chart, searchable table for pre-test submissions (Batch 1)
+  - **📝 Post-Test (Batch 1)** — Stats, per-question chart, searchable table for post-test submissions (Batch 1)
+  - **📋 Pre-Test (Batch 2)** — Stats, per-question chart, searchable table for pre-test submissions (Batch 2)
+  - **📊 Comparison** — Side-by-side per-question bar chart of all three datasets, average score change, pass rate change
 
 > ⚠️ To change the admin password, edit `adminPassword` in `js/app.js` → `CONFIG` object.
 
@@ -148,8 +156,9 @@ const CONFIG = {
   timerMinutes:         45,               // Test duration
   passMark:             10,               // Minimum score to pass (out of 25)
   totalQuestions:       25,
-  firestoreCollection:     'submissions',      // Pre-test collection
-  firestoreCollectionPost: 'submissions_post', // Post-test collection
+  firestoreCollection:     'submissions',      // Pre-test Batch 1
+  firestoreCollectionPost: 'submissions_post', // Post-test Batch 1
+  firestoreCollectionPreBatch2: 'submissions_pre_batch2', // Pre-test Batch 2
 };
 ```
 
@@ -231,7 +240,7 @@ This project is created and maintained by **Dinesh Nagar** for educational purpo
 ## 👨‍🏫 About the Creator
 
 **Dinesh Nagar**  
-UMS Physics Teacher — Sandipani Vidyalaya Sabakheda  
+UMS Physics Teacher — Sandipani Vidyalaya Sabakheda, Mandsaur  
 📞 [9993355323](tel:9993355323)  
 ✉️ [Dineshnagar76@gmail.com](mailto:Dineshnagar76@gmail.com)
 

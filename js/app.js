@@ -13,6 +13,7 @@ const CONFIG = {
   totalQuestions: 25,
   firestoreCollection: 'submissions',
   firestoreCollectionPost: 'submissions_post',
+  firestoreCollectionPreBatch2: 'submissions_pre_batch2',
 };
 
 // ──────────────────────────────────────────────
@@ -402,21 +403,22 @@ const clearSubmissionsPost       = ()    => _clearCollection(CONFIG.firestoreCol
 const subscribeToSubmissionsPost = (cb, onErr) => _subscribeTo(CONFIG.firestoreCollectionPost, cb, onErr);
 
 // ──────────────────────────────────────────────
+//  §6b  FIRESTORE — Pre-Test Batch 2 API
+// ──────────────────────────────────────────────
+
+const saveSubmissionBatch2         = (sub) => _saveDoc(CONFIG.firestoreCollectionPreBatch2, sub);
+const getSubmissionsBatch2         = ()    => _getAllDocs(CONFIG.firestoreCollectionPreBatch2);
+const clearSubmissionsBatch2       = ()    => _clearCollection(CONFIG.firestoreCollectionPreBatch2);
+const subscribeToSubmissionsBatch2 = (cb, onErr) => _subscribeTo(CONFIG.firestoreCollectionPreBatch2, cb, onErr);
+
+// ──────────────────────────────────────────────
 //  §7  FIRESTORE — Auto-Fill & Lookup
 // ──────────────────────────────────────────────
 
-/** Look up a pre-test submission by a field value (e.g. mobile, email). */
+/** Look up a pre-test submission by a field value — disabled for Batch 2 (fresh batch). */
 async function lookupPreTestByField(field, value) {
-  try {
-    const snap = await _col(CONFIG.firestoreCollection)
-      .where(field, '==', value)
-      .limit(1)
-      .get();
-    return snap.empty ? null : snap.docs[0].data();
-  } catch (err) {
-    console.warn('Auto-fill lookup failed:', err);
-    return null;
-  }
+  // Auto-fill disabled for Batch 2 — no prior data to look up
+  return null;
 }
 
 /** Fetch a single pre-test submission by its document ID. */
@@ -464,10 +466,10 @@ function formatDate(isoString) {
 //  §10  SESSION HELPERS
 // ──────────────────────────────────────────────
 
-const _SESSION_KEYS = ['name', 'uniqueid', 'mobile', 'school', 'email'];
+const _SESSION_KEYS = ['name', 'uniqueid', 'mobile', 'school', 'email', 'district'];
 
-function savePendingUser(name, uniqueid, mobile, school, email) {
-  const vals = { name, uniqueid, mobile, school, email };
+function savePendingUser(name, uniqueid, mobile, school, email, district) {
+  const vals = { name, uniqueid, mobile, school, email, district: district || '' };
   _SESSION_KEYS.forEach(k => sessionStorage.setItem(`quiz_pending_${k}`, vals[k]));
 }
 

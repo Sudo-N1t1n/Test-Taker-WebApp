@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Physics For Fun — Practical Skills Post-Test</title>
+  <title>Physics For Fun — Practical Skills Pre-Test</title>
   <meta name="description"
-    content="A diagnostic post-test for Physics Practical Skills — Class 11 & 12. Designed by Dinesh Nagar, UMS Physics Teacher at Sandipani Vidyalaya Sabakheda." />
+    content="A diagnostic pre-test for Physics Practical Skills — Class 11 & 12. Designed by Dinesh Nagar, UMS Physics Teacher at Sandipani Vidyalaya Sabakheda, Mandsaur." />
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚗️</text></svg>" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -28,13 +28,13 @@
   <!-- Hero -->
   <section class="hero fade-up">
     <div class="hero-badge">🎓 Teacher Training Programme </div>
-    <h1>Physics Practical Skills<br><span class="gradient-text">Post-Test Assessment</span></h1>
+    <h1>Physics Practical Skills<br><span class="gradient-text">Pre-Test Assessment</span></h1>
     <p>A diagnostic quiz covering Class 11 &amp; 12 physics practical techniques, instruments, and experimental methods.
     </p>
 
     <!-- Author credit strip -->
     <div class="author-strip">
-      ✏️ Designed by <strong>Dinesh Nagar</strong> &bull; UMS Physics, Sandipani Vidyalaya Sabakheda
+      ✏️ Designed by <strong>Dinesh Nagar</strong> &bull; UMS Physics, Sandipani Vidyalaya Sabakheda, Mandsaur
     </div>
     <div style="margin-top: -12px; margin-bottom: 24px;">
       <a href="about.html" class="btn btn-secondary"
@@ -55,7 +55,7 @@
   <div class="container">
     <div class="card fade-up fade-up-2">
       <h2 style="margin-bottom:6px;">Enter Your Details</h2>
-      <p style="margin-bottom:28px;">Fill in your name and email to begin the post-test. Enter your mobile or email from the pre-test for quick auto-fill.</p>
+      <p style="margin-bottom:28px;">Fill in your details to begin the pre-test.</p>
 
       <!-- Auto-fill toast -->
       <div id="autofillToast" style="display:none;padding:10px 16px;border-radius:10px;margin-bottom:18px;
@@ -95,9 +95,21 @@
             <option value="en">English</option>
           </select>
         </div>
+        <div class="form-group">
+          <label for="districtSelect">📍 District *</label>
+          <select id="districtSelect" required style="width:100%;padding:12px 16px;background:var(--bg2);color:var(--text);
+                  border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.95rem;
+                  cursor:pointer;outline:none;transition:border-color 0.2s;">
+            <option value="" disabled selected>Select your district</option>
+            <option value="Mandsaur">Mandsaur</option>
+            <option value="Sagar">Sagar</option>
+            <option value="Panna">Panna</option>
+            <option value="Ratlam">Ratlam</option>
+          </select>
+        </div>
         <div id="formError" style="color:var(--red);font-size:0.88rem;margin-bottom:16px;display:none;"></div>
         <button type="submit" class="btn btn-primary" id="startBtn" style="width:100%;font-size:1rem;padding:15px;">
-          Start Post-Test →
+          Start Pre-Test →
         </button>
       </form>
     </div>
@@ -118,7 +130,7 @@
           <span class="num">2.</span>
           <div class="text">
             You have <strong style="color:var(--text);">45 minutes</strong> to complete the test. The timer starts when
-            you click "Start Post-Test".
+            you click "Start Pre-Test".
           </div>
         </li>
         <li>
@@ -130,7 +142,7 @@
         <li>
           <span class="num">4.</span>
           <div class="text">
-            Your score will be shown immediately after submission, along with a comparison to your pre-test result.
+            Your score will be shown immediately after submission.
           </div>
         </li>
         <li>
@@ -146,11 +158,11 @@
 
   <!-- Footer -->
   <footer class="site-footer">
-    <div>⚗️ <strong>Physics For Fun</strong> &bull; Physics Practical Skills Post-Test</div>
+    <div>⚗️ <strong>Physics For Fun</strong> &bull; Physics Practical Skills Pre-Test</div>
     <div style="margin-top:4px;">
       Designed &amp; created by
       <a href="about.html"><strong>Dinesh Nagar</strong></a> &bull;
-      UMS Physics Teacher, Sandipani Vidyalaya Sabakheda
+      UMS Physics Teacher, Sandipani Vidyalaya Sabakheda, Mandsaur
     </div>
     <div style="margin-top:4px;">
       📞 <a href="tel:9993355323">9993355323</a> &nbsp;|&nbsp;
@@ -231,6 +243,7 @@
       const mobile = document.getElementById('mobileInput').value.trim();
       const school = document.getElementById('schoolInput').value.trim();
       const email = document.getElementById('emailInput').value.trim();
+      const district = document.getElementById('districtSelect').value;
 
       if (!name) {
         errEl.textContent = 'Please enter your full name.';
@@ -262,12 +275,18 @@
         document.getElementById('emailInput').focus();
         return;
       }
+      if (!district) {
+        errEl.textContent = 'Please select your district.';
+        errEl.style.display = 'block';
+        document.getElementById('districtSelect').focus();
+        return;
+      }
 
       errEl.style.display = 'none';
       // Store language preference before navigating
       const lang = document.getElementById('langSelect').value;
       sessionStorage.setItem('quiz_language', lang);
-      savePendingUser(name, uniqueid, mobile, school, email);
+      savePendingUser(name, uniqueid, mobile, school, email, district);
       window.location.href = 'quiz.html';
     });
   </script>

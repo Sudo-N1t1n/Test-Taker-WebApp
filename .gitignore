@@ -2,3 +2,9 @@
 SETUP_GUIDE.md
 export_firestore.py
 exports/
+PyWhatKit_DB.txt
+links_output.txt
+node_modules/
+pdf_results/
+html_results/
+sent_messages_log.txt

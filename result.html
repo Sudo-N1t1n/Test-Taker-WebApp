@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Result — Physics For Fun Post-Test</title>
-  <meta name="description" content="See your Physics Practical Skills Post-Test results and pre-test comparison." />
+  <title>Your Result — Physics For Fun Pre-Test</title>
+  <meta name="description" content="See your Physics Practical Skills Pre-Test results." />
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚗️</text></svg>" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -171,8 +171,15 @@
         </div>
       </div>
 
-      <!-- Pre-Test vs Post-Test Comparison -->
-      <div id="comparisonSection"></div>
+      <!-- District -->
+      <div id="summaryDistrictWrap" style="display:none;">
+        <div
+          style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:4px;">
+          District</div>
+        <div style="font-weight:600;" id="summaryDistrict">—</div>
+      </div>
+
+      <!-- Comparison section removed — not applicable for standalone pre-test -->
 
       <div class="text-center mt-32">
         <a href="index.html" class="btn btn-primary">Take the Test Again →</a>
@@ -181,7 +188,7 @@
   </div>
 
   <footer class="site-footer">
-    <div>Quiz by <strong>Dinesh Nagar</strong> &bull; UMS Physics Teacher, CM RISE Sabakheda</div>
+    <div>Quiz by <strong>Dinesh Nagar</strong> &bull; UMS Physics Teacher, CM RISE Sabakheda, Mandsaur</div>
     <div style="margin-top:4px;">
       📞 <a href="tel:9993355323">9993355323</a> &nbsp;|&nbsp;
       ✉️ <a href="mailto:Dineshnagar76@gmail.com">Dineshnagar76@gmail.com</a>
@@ -197,19 +204,27 @@
     const resultId = urlParams.get('id');
 
     if (resultId) {
-      // Try post-test collection first, then fall back to pre-test
-      window.db.collection(CONFIG.firestoreCollectionPost).doc(resultId).get()
+      // Try batch2 collection first, then post-test, then pre-test
+      window.db.collection(CONFIG.firestoreCollectionPreBatch2).doc(resultId).get()
         .then(doc => {
           if (doc.exists) {
             renderResult(doc.data());
-            return null; // Handled
+            return null;
           } else {
-            // Fallback: try pre-test collection for shared links
+            return window.db.collection(CONFIG.firestoreCollectionPost).doc(resultId).get();
+          }
+        })
+        .then(doc => {
+          if (doc === null) return null;
+          if (doc && doc.exists) {
+            renderResult(doc.data());
+            return null;
+          } else {
             return window.db.collection(CONFIG.firestoreCollection).doc(resultId).get();
           }
         })
         .then(doc => {
-          if (doc === null) return; // Handled in previous step
+          if (doc === null) return;
           if (doc && doc.exists) {
             renderResult(doc.data());
           } else {
@@ -285,83 +300,13 @@
       const secs = submission.timeTaken % 60;
       document.getElementById('summaryTime').textContent = `${mins}m ${secs}s`;
 
-      // Load pre-test comparison
-      loadComparison(submission);
+      // District
+      if (submission.district) {
+        document.getElementById('summaryDistrictWrap').style.display = '';
+        document.getElementById('summaryDistrict').textContent = submission.district;
+      }
     }
 
-    async function loadComparison(postSubmission) {
-      const section = document.getElementById('comparisonSection');
-      const preTestId = postSubmission.preTestId;
-
-      if (!preTestId) {
-        section.innerHTML = `
-          <div class="comparison-card">
-            <h3 style="text-align:center;margin-bottom:8px;">📊 Pre-Test vs Post-Test</h3>
-            <div class="no-pretest">
-              No pre-test record was linked to this submission. Comparison is not available.
-            </div>
-          </div>`;
-        return;
-      }
-
-      section.innerHTML = `
-        <div class="comparison-card">
-          <h3 style="text-align:center;margin-bottom:8px;">📊 Pre-Test vs Post-Test</h3>
-          <div class="no-pretest">Loading pre-test data…</div>
-        </div>`;
-
-      const preTest = await fetchPreTestById(preTestId);
-
-      if (!preTest) {
-        section.innerHTML = `
-          <div class="comparison-card">
-            <h3 style="text-align:center;margin-bottom:8px;">📊 Pre-Test vs Post-Test</h3>
-            <div class="no-pretest">Could not load pre-test record for comparison.</div>
-          </div>`;
-        return;
-      }
-
-      const prePct = Math.round((preTest.score / preTest.total) * 100);
-      const postPct = Math.round((postSubmission.score / postSubmission.total) * 100);
-      const diff = postSubmission.score - preTest.score;
-      const diffPct = postPct - prePct;
-
-      let badgeClass, badgeText, badgeIcon;
-      if (diff > 0) {
-        badgeClass = 'positive';
-        badgeIcon = '📈';
-        badgeText = `+${diff} marks (+${diffPct}%) Improvement!`;
-      } else if (diff < 0) {
-        badgeClass = 'negative';
-        badgeIcon = '📉';
-        badgeText = `${diff} marks (${diffPct}%) — Keep practising!`;
-      } else {
-        badgeClass = 'neutral';
-        badgeIcon = '➡️';
-        badgeText = `Same score — no change`;
-      }
-
-      section.innerHTML = `
-        <div class="comparison-card">
-          <h3 style="text-align:center;margin-bottom:16px;">📊 Pre-Test vs Post-Test Comparison</h3>
-          <div class="comparison-grid">
-            <div class="comparison-item">
-              <div class="label">Pre-Test</div>
-              <div class="score-big" style="color:var(--text-muted);">${preTest.score}<span style="font-size:1rem;font-weight:400;">/${preTest.total}</span></div>
-              <div class="score-pct">${prePct}%</div>
-            </div>
-            <div class="comparison-arrow">→</div>
-            <div class="comparison-item">
-              <div class="label">Post-Test</div>
-              <div class="score-big" style="color:var(--indigo-lt);">${postSubmission.score}<span style="font-size:1rem;font-weight:400;">/${postSubmission.total}</span></div>
-              <div class="score-pct">${postPct}%</div>
-            </div>
-          </div>
-          <div style="text-align:center;">
-            <div class="improvement-badge ${badgeClass}">${badgeIcon} ${badgeText}</div>
-          </div>
-        </div>`;
-    }
   </script>
 </body>
 
