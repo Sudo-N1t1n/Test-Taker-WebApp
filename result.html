@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Result — Physics For Fun Pre-Test</title>
-  <meta name="description" content="See your Physics Practical Skills Pre-Test results." />
+  <title>Your Result — Physics For Fun Post-Test</title>
+  <meta name="description" content="See your Physics Practical Skills Post-Test results." />
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚗️</text></svg>" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -204,10 +204,19 @@
     const resultId = urlParams.get('id');
 
     if (resultId) {
-      // Try batch2 collection first, then post-test, then pre-test
-      window.db.collection(CONFIG.firestoreCollectionPreBatch2).doc(resultId).get()
+      // Try post practical B2 collection first, then batch2, then post-test, then pre-test
+      window.db.collection(CONFIG.firestoreCollectionPostPracticalB2).doc(resultId).get()
         .then(doc => {
           if (doc.exists) {
+            renderResult(doc.data());
+            return null;
+          } else {
+            return window.db.collection(CONFIG.firestoreCollectionPreBatch2).doc(resultId).get();
+          }
+        })
+        .then(doc => {
+          if (doc === null) return null;
+          if (doc && doc.exists) {
             renderResult(doc.data());
             return null;
           } else {
